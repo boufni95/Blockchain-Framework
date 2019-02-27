@@ -6,3 +6,11 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 */
+import (
+	"fmt"
+	"testing"
+)
+
+func BenchmarckYo(T *testing.B) {
+	fmt.Println("ciao")
+}
