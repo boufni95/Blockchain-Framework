@@ -1,13 +1,13 @@
 # Go GameServer<br/>
 Is a package to build easly a simpe game server
-but gives also the power to give a complex realtime server for any tipe of function
+but gives also the power to create a complex realtime server for any tipe of function
 that has a lot of user who constantly communicate with each other<br/>
 
 ### Temp Doc<br/>
 
 ###### About exported functions <br/>
 - **Std** Function that containt *Std* In the name are to create standard Interfaces with zero configuration<br/>
-- **New** Functions that contain *New* in the name are to create an interface wit full configuration
+- **New** Functions that contain *New* in the name are to create an interface with full configuration<br/>
 *Std* uses the *New* functions<br/>
 ###### About exported interfaces<br/>
 - **Server** Is the interface of the server, it allows to create rooms, add players,send events...
