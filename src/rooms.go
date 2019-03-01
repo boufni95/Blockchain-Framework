@@ -11,7 +11,21 @@ type RoomStatus int
 //-------------------CONSTANTS--------------------------------------
 //------------------------------------------------------------------
 
-const ()
+const (
+
+	//NullRoomStatus : the room is created but not usable
+	NullRoomStatus RoomStatus = 0
+
+	//AvalRoomStatus : the room is avalaible
+	//and there is space for players
+	AvalRoomStatus RoomStatus = 2
+
+	//FullRoomStatus : the room is full
+	FullRoomStatus RoomStatus = 5
+
+	//ErrorRoomStatus : the room is reporting an error
+	ErrorRoomStatus RoomStatus = -1
+)
 
 //------------------------------------------------------------------
 //-------------------INTERFACES-------------------------------------
