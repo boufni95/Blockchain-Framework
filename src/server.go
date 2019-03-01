@@ -25,11 +25,12 @@ type Server interface {
 	Emit(string, net.Conn)
 	Status() string
 	StatusIn(string)
+	AddRoom(Room)
+	RemoveRoom(Room)
 	AddPlayer(string, net.Conn)
 	RemovePlayer(string)
-	BroadcastMessageServer(Message)
-	BroadcastMessageRoom(Message, int)
-	SendMessageTo(Message, net.Conn)
+	BroadcastMessage(Message) error
+	SendMessageTo(Message, net.Conn) error
 }
 
 //ServerConfig : the interface of the server config
@@ -141,6 +142,12 @@ func (s *server) Status() string {
 func (s *server) StatusIn(st string) {
 	s.status = st
 }
+func (s *server) AddRoom(r Room) {
+
+}
+func (s *server) RemoveRoom(r Room) {
+
+}
 func (s *server) AddPlayer(st string, conn net.Conn) {
 	var p player
 	p.name = st
@@ -166,14 +173,12 @@ func (s *server) RemovePlayer(st string) {
 		}
 	}
 }
-func (s *server) BroadcastMessageServer(m Message) {
-
+func (s *server) BroadcastMessage(m Message) error {
+	return nil
 }
-func (s *server) BroadcastMessageRoom(m Message, room int) { //room
 
-}
-func (s *server) SendMessageTo(m Message, conn net.Conn) {
-
+func (s *server) SendMessageTo(m Message, conn net.Conn) error {
+	return nil
 }
 
 //==========================================================
