@@ -27,6 +27,9 @@ type Server interface {
 	StatusIn(string)
 	AddPlayer(string, net.Conn)
 	RemovePlayer(string)
+	BroadcastMessageServer(Message)
+	BroadcastMessageRoom(Message, int)
+	SendMessageTo(Message, net.Conn)
 }
 
 //ServerConfig : the interface of the server config
@@ -68,6 +71,7 @@ type server struct {
 	status      string
 	players     map[string]Player
 	playersIndx []string
+	rooms       map[string]Room
 }
 
 //-----------------------------------------------
@@ -154,6 +158,21 @@ func (s *server) AddPlayer(st string, conn net.Conn) {
 	}
 }
 func (s *server) RemovePlayer(st string) {
+	delete(s.players, st)
+	for i := range s.playersIndx {
+		if s.playersIndx[i] == st {
+			s.playersIndx[i] = "removed"
+			break
+		}
+	}
+}
+func (s *server) BroadcastMessageServer(m Message) {
+
+}
+func (s *server) BroadcastMessageRoom(m Message, room int) { //room
+
+}
+func (s *server) SendMessageTo(m Message, conn net.Conn) {
 
 }
 
