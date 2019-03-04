@@ -27,10 +27,11 @@ type Server interface {
 	StatusIn(string)
 	AddRoom(Room)
 	RemoveRoom(Room)
-	AddPlayer(string, net.Conn)
+	AddPlayer(string, net.Conn) int
 	RemovePlayer(string)
 	BroadcastMessage(Message) error
 	SendMessageTo(Message, net.Conn) error
+	AssignRoom(string, Player)
 }
 
 //ServerConfig : the interface of the server config
@@ -148,21 +149,27 @@ func (s *server) AddRoom(r Room) {
 func (s *server) RemoveRoom(r Room) {
 
 }
-func (s *server) AddPlayer(st string, conn net.Conn) {
+func (s *server) AddPlayer(st string, conn net.Conn) int {
 	var p player
 	p.name = st
 	p.conn = conn
 	s.players[st] = &p
 	found := false
-	for _, v := range s.playersIndx {
+	indx := -1
+	for i, v := range s.playersIndx {
+		indx = i
 		if v == "" {
 			v = conn.RemoteAddr().String()
 			found = true
+			break
+
 		}
 	}
 	if found == false {
+		indx++
 		s.playersIndx = append(s.playersIndx, conn.RemoteAddr().String())
 	}
+	return indx
 }
 func (s *server) RemovePlayer(st string) {
 	delete(s.players, st)
@@ -174,11 +181,21 @@ func (s *server) RemovePlayer(st string) {
 	}
 }
 func (s *server) BroadcastMessage(m Message) error {
+	for key := range s.players {
+		s.players[key].SendMessage(m)
+	}
 	return nil
 }
 
 func (s *server) SendMessageTo(m Message, conn net.Conn) error {
 	return nil
+}
+func (s *server) AssignRoom(st string, p Player) {
+	if st == "" {
+		//assign random room
+	} else {
+		//assign specific room
+	}
 }
 
 //==========================================================

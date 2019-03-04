@@ -2,6 +2,7 @@ package gameserver
 
 import (
 	"fmt"
+	"net"
 	"reflect"
 )
 
@@ -19,23 +20,99 @@ type MessageContent interface{}
 //-------------------CONSTANTS--------------------------------------
 //------------------------------------------------------------------
 const (
+	//WelcomeMessage : message to send data to the client
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> client code
+	WelcomeMessage MessageType = 0
 
 	//StrangeMessage : message unknown to the clinet
+	//STRUCTURE:
+	//1byte -> message type
+	//1byte -> (last peace)?0:10
+	//1byte -> peace type
+	//N1bytes -> in some cases, peace length (es string)
+	//N2bytes ->peace
 	StrangeMessage MessageType = 1
 
-	//VoidMessage : message containing no information, useful
-	//to ckeck timeout
+	//VoidMessage : message containing no information
+	//STRUCTURE:
+	//1byte -> message type
 	VoidMessage MessageType = 3
 
 	//ForceTransform : forces the client to set the players
 	//transform to the value sent
+	//STRUCTURE:
+	//1byte -> message type
+	//12byte -> Vector3int position
 	ForceTransform MessageType = 5
 
 	//SimpleTransform : mesage containing a simple transform
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	//12byte -> Vector3int position
 	SimpleTransform MessageType = 10
 
 	//CompleteTransform : message containing a coplete transform
+	//STRUCTURE:
+	//1byte -> message type
+	//
 	CompleteTransform MessageType = 12
+
+	//NewConnection : a new player connected
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	//1byte -> name length
+	//Nbyte -> name
+	NewConnection MessageType = 20
+
+	//NewDisconnection : a player disconnected
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	NewDisconnection MessageType = 22
+
+	//NewInRoom : a player just connected to the room
+	//STRUCTURE:
+	//1byte : message type
+	//4byte : owner
+	//1byte -> name length
+	//Nbyte -> name
+	NewInRoom MessageType = 24
+
+	//NewOutRoom : a player exited the room
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	NewOutRoom MessageType = 26
+
+	//ChatAll : send text message to all players
+	//STRUCTURE:
+	//1byte -> message type
+	//1byte -> owner name lenght
+	//N1byte -> owner name
+	//1byte -> text message lenth
+	//N2byte -> text message
+	ChatAll MessageType = 30
+
+	//ChatRoom : send text message to all in the room
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	//1byte -> text message lenght
+	//Nbyte -> text message
+	ChatRoom MessageType = 32
+
+	//ChatTo : send text message to specific user
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	//4byte -> destination
+	//1byte -> text message length
+	//Nbyte -> text message
+	ChatTo MessageType = 34
 
 	//These constants are used by the strange message
 
@@ -104,6 +181,8 @@ const (
 type Message interface {
 	GetType() MessageType
 	GetContent() MessageContent
+	Send(Server, net.Conn)
+	Mutate(MessageType, MessageContent)
 }
 
 //------------------------------------------------------------------
@@ -136,4 +215,33 @@ func (m *message) GetType() MessageType {
 func (m *message) GetContent() MessageContent {
 	c := m.mContent
 	return c
+}
+func (m *message) Send(s Server, conn net.Conn) {
+	switch m.mType {
+	case WelcomeMessage:
+		{
+			Bytes := make([]byte, 4)
+
+			intTo4Byte(&Bytes, m.mContent.(int), true)
+			toSend := make([]byte, 1)
+			toSend[0] = (byte)(m.mType)
+			toSend = append(toSend, Bytes...)
+			conn.Write(toSend)
+			break
+		}
+	case NewConnection:
+		{
+			s := m.mContent.(struct {
+				code int
+				name []byte
+			})
+			fmt.Println(len(s.name))
+
+			break
+		}
+	}
+}
+func (m *message) Mutate(mt MessageType, mc MessageContent) {
+	m.mType = mt
+	m.mContent = mc
 }

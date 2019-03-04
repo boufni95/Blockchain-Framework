@@ -13,7 +13,7 @@ import "net"
 //Player : the player interface
 type Player interface {
 	//GetTransform() Transform
-	SendMessage(MessageType, MessageContent)
+	SendMessage(Message)
 }
 
 //Transform : interface of the players transform
@@ -41,6 +41,6 @@ type player struct {
 	//trnansform Transform
 }
 
-func (p *player) SendMessage(mt MessageType, mc MessageContent) {
-
+func (p *player) SendMessage(m Message) {
+	m.Send(nil, p.conn)
 }
