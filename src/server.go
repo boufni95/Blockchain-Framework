@@ -109,8 +109,9 @@ func (s *server) AddListener(e string, ef EventFunc) chan net.Conn {
 	}
 	go func(s Server, ch chan net.Conn, ef EventFunc) {
 		for {
+			//fmt.Println("gonna fire it")
 			f := <-ch
-			ef(s, f)
+			go ef(s, f)
 		}
 	}(s, ch, ef)
 	return ch

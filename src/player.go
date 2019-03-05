@@ -1,6 +1,9 @@
 package gameserver
 
-import "net"
+import (
+	"fmt"
+	"net"
+)
 
 //------------------------------------------------------------------
 //-------------------TYPES------------------------------------------
@@ -43,4 +46,5 @@ type player struct {
 
 func (p *player) SendMessage(m Message) {
 	m.Send(nil, p.conn)
+	fmt.Println("sending")
 }
