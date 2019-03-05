@@ -65,7 +65,7 @@ const (
 	//1byte -> message type
 	//1byte -> name lenght
 	//Nbyte -> name
-	StringName MessageType = 18 // s <-> c
+	NameString MessageType = 18 // s <-> c
 
 	//NewConnection : a new player connected
 	//STRUCTURE:
@@ -206,38 +206,6 @@ func NewMessage(mt MessageType, mc MessageContent) Message {
 	return &m
 }
 
-func reciveMess(m Message, conn net.Conn) {
-	switch m.GetType() {
-	case VoidMessage:
-		{
-
-		}
-	case SimpleTransform:
-		{
-
-		}
-	case CompleteTransform:
-		{
-
-		}
-	case StringName:
-		{
-
-		}
-	case ChatAll:
-		{
-
-		}
-	case ChatRoom:
-		{
-
-		}
-	case ChatTo:
-		{
-
-		}
-	}
-}
 func extractContent(mt MessageType, b []byte) MessageContent {
 	switch mt {
 	case VarString:
@@ -325,7 +293,31 @@ func (m *message) Send(s Server, conn net.Conn) {
 			toSend[0] = (byte)(m.mType)
 			toSend = append(toSend, Bytes...)
 			conn.Write(toSend)
-			break
+
+		}
+	case StrangeMessage:
+		{
+
+		}
+	case VoidMessage:
+		{
+
+		}
+	case ForceTransform:
+		{
+
+		}
+	case SimpleTransform:
+		{
+
+		}
+	case CompleteTransform:
+		{
+
+		}
+	case NameString:
+		{
+
 		}
 	case NewConnection:
 		{
@@ -342,7 +334,35 @@ func (m *message) Send(s Server, conn net.Conn) {
 			toSend = append(toSend, s.name...)
 			//spew.Dump(toSend)
 			conn.Write(toSend)
-			break
+
+		}
+	case NewDisconnection:
+		{
+
+		}
+	case NewInRoom:
+		{
+
+		}
+	case NewOutRoom:
+		{
+
+		}
+	case ChatAll:
+		{
+
+		}
+	case ChatRoom:
+		{
+
+		}
+	case ChatTo:
+		{
+
+		}
+	default:
+		{
+			//throw error here
 		}
 	}
 }

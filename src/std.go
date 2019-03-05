@@ -1,10 +1,9 @@
 package gameserver
 
 import (
+	"errors"
 	"fmt"
 	"net"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 //StdServer : create a standard server
@@ -12,7 +11,7 @@ func StdServer() Server {
 
 	sc := stdServerConfig()
 	s := NewServer(sc)
-	AddStdListeners(s)
+	StdAddListeners(s)
 	return s
 
 }
@@ -23,18 +22,24 @@ func stdServerConfig() ServerConfig {
 
 var defListen map[string]chan net.Conn
 
-//AddStdListeners :  add the standard listeners to the server
+//StdAddListeners :  add the standard listeners to the server
 //NEW CONNECTION
 //NEW DOSCONNECTION
-func AddStdListeners(s Server) {
+func StdAddListeners(s Server) {
 	defListen = make(map[string]chan net.Conn)
 	s.StatusIn("adding listener")
-	defListen["connected"] = s.AddListener("connected", onConnected)
+	defListen["connected"] = s.AddListener("connected", stdOnConnected)
 
 }
-func onConnected(s Server, conn net.Conn) {
-	//s := conn.RemoteAddr().String()
-	num := make([]byte, 1)
+func stdOnConnected(s Server, conn net.Conn) {
+	for {
+		if err := StdReciveMessage(s, conn); err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+	}
+	/*num := make([]byte, 1)
 	_, err := conn.Read(num)
 	if err != nil {
 		fmt.Println(err)
@@ -46,13 +51,7 @@ func onConnected(s Server, conn net.Conn) {
 	}
 	fmt.Println("connected:", string(name))
 
-	code := s.AddPlayer(string(name), conn)
-	wmess := NewMessage(WelcomeMessage, code)
-	wmess.Send(s, conn)
-	//type cont struct {
-	//	code int
-	//	name []byte
-	//}
+
 	c := struct {
 		code int
 		name []byte
@@ -74,10 +73,66 @@ func onConnected(s Server, conn net.Conn) {
 			}
 			spew.Dump(posB)
 		}
-	}
+	}*/
 }
 func discF(s string) {
 	fmt.Println("disconnected:", s)
+}
+func StdReciveMessage(s Server, conn net.Conn) error {
+	mType := make([]byte, 1)
+	_, err := conn.Read(mType)
+	if err != nil {
+		fmt.Println(err)
+	}
+	switch (MessageType)(mType[0]) {
+	case VoidMessage:
+		{
+
+		}
+	case SimpleTransform:
+		{
+
+		}
+	case CompleteTransform:
+		{
+
+		}
+	case NameString:
+		{
+			num := make([]byte, 1)
+			_, err := conn.Read(num)
+			if err != nil {
+				fmt.Println(err)
+			}
+			name := make([]byte, num[0])
+			_, err2 := conn.Read(name)
+			if err2 != nil {
+				fmt.Println(err)
+			}
+			fmt.Println("connected:", string(name))
+
+			code := s.AddPlayer(string(name), conn)
+			wmess := NewMessage(WelcomeMessage, code)
+			wmess.Send(s, conn)
+		}
+	case ChatAll:
+		{
+
+		}
+	case ChatRoom:
+		{
+
+		}
+	case ChatTo:
+		{
+
+		}
+	default:
+		{
+			return errors.New("Reciven unknown message type")
+		}
+	}
+	return nil
 }
 
 /*
