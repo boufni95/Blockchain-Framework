@@ -1,5 +1,7 @@
 package gameserver
 
+import "errors"
+
 //------------------------------------------------------------------
 //-------------------TYPES------------------------------------------
 //------------------------------------------------------------------
@@ -36,6 +38,8 @@ type Room interface {
 	FreeSpots() int
 	GetKey() string
 	BroadcastMessage(Message) error
+	AddPlayer(string) error
+	//TODO : RemovePlayer
 }
 
 //------------------------------------------------------------------
@@ -43,12 +47,13 @@ type Room interface {
 //------------------------------------------------------------------
 
 //NewRoom : returns a new room given the key and max players
-func NewRoom(key string, maxP int) Room {
+func NewRoom(s Server, key string, maxP int) Room {
 	var r room
 	r.key = key
 	r.maxPlayers = maxP
 	r.numConnected = 0
 	r.players = make([]string, 0)
+	r.server = s
 	return &r
 }
 
@@ -60,6 +65,7 @@ type room struct {
 	maxPlayers   int
 	numConnected int
 	players      []string
+	server       Server
 }
 
 func (r *room) FreeSpots() int {
@@ -70,5 +76,18 @@ func (r *room) GetKey() string {
 	return r.key
 }
 func (r *room) BroadcastMessage(m Message) error {
+	for _, v := range r.players {
+		r.server.SendMessageToAddr(m, v)
+	}
+	return nil
+}
+func (r *room) AddPlayer(key string) error {
+	for _, v := range r.players {
+		if v == key {
+			return errors.New("player already in the room")
+		}
+
+	}
+	r.players = append(r.players, key)
 	return nil
 }

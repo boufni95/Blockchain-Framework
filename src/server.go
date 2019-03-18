@@ -1,6 +1,7 @@
 package gameserver
 
 import (
+	"errors"
 	"fmt"
 	"net"
 )
@@ -25,13 +26,15 @@ type Server interface {
 	Emit(string, net.Conn)
 	Status() string
 	StatusIn(string)
-	AddRoom(Room)
-	RemoveRoom(Room)
+	AddRoom(string, int) error
+	RemoveRoom(string)
 	AddPlayer(string, net.Conn) int
 	RemovePlayer(string)
 	BroadcastMessage(Message) error
-	SendMessageTo(Message, net.Conn) error
-	AssignRoom(string, Player)
+	BroadcastMessageRoom(Message, string) error
+	SendMessageToConn(Message, net.Conn) error
+	SendMessageToAddr(Message, string) error
+	AssignRoom(string, string)
 }
 
 //ServerConfig : the interface of the server config
@@ -56,8 +59,9 @@ func NewServer(sc ServerConfig) Server {
 	s.ln = nil
 	s.listeners = make(map[string][]chan net.Conn)
 	s.players = make(map[string]Player)
-
+	s.rooms = make(map[string]Room)
 	s.status = "created"
+	s.AddRoom(randStringBytes(8), 100)
 	return &s
 
 }
@@ -96,7 +100,7 @@ func (s *server) Start() error {
 
 }
 func (s *server) Close() {
-
+	//TODO : implement Close
 }
 func (s *server) AddListener(e string, ef EventFunc) chan net.Conn {
 	ch := make(chan net.Conn)
@@ -144,17 +148,23 @@ func (s *server) Status() string {
 func (s *server) StatusIn(st string) {
 	s.status = st
 }
-func (s *server) AddRoom(r Room) {
+func (s *server) AddRoom(key string, maxP int) error {
 
+	if _, ok := s.rooms[key]; ok == false {
+		r := NewRoom(s, key, maxP)
+		s.rooms[key] = r
+		return nil
+	}
+	return errors.New("the key room already exists")
 }
-func (s *server) RemoveRoom(r Room) {
-
+func (s *server) RemoveRoom(key string) {
+	//TODO : implement RemoveRoom
 }
 func (s *server) AddPlayer(st string, conn net.Conn) int {
 	var p player
 	p.name = st
 	p.conn = conn
-	s.players[st] = &p
+	s.players[conn.RemoteAddr().String()] = &p
 	found := false
 	indx := -1
 	for i, v := range s.playersIndx {
@@ -187,15 +197,32 @@ func (s *server) BroadcastMessage(m Message) error {
 	}
 	return nil
 }
-
-func (s *server) SendMessageTo(m Message, conn net.Conn) error {
+func (s *server) BroadcastMessageRoom(m Message, key string) error {
+	s.players[key].BroadcastRoom(m)
 	return nil
 }
-func (s *server) AssignRoom(st string, p Player) {
-	if st == "" {
-		//assign random room
+func (s *server) SendMessageToConn(m Message, conn net.Conn) error {
+	//TODO : implement SendMessageToConn
+	return nil
+}
+func (s *server) SendMessageToAddr(m Message, ip string) error {
+	s.players[ip].SendMessage(m)
+	return nil
+}
+func (s *server) AssignRoom(keyR string, keyP string) {
+	if keyR == "" {
+		//spew.Dump(s.rooms)
+		for i := range s.rooms {
+			if s.rooms[i].FreeSpots() > 0 {
+				s.rooms[i].AddPlayer(keyP)
+				s.players[keyP].SetRoom(s.rooms[i])
+				break
+			}
+		}
+		//spew.Dump(s.rooms)
 	} else {
 		//assign specific room
+		//TODO : implement specific room assignement
 	}
 }
 

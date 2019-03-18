@@ -16,7 +16,9 @@ import (
 //Player : the player interface
 type Player interface {
 	//GetTransform() Transform
-	SendMessage(Message)
+	SendMessage(Message) error
+	BroadcastRoom(Message) error
+	SetRoom(Room) error
 }
 
 //Transform : interface of the players transform
@@ -41,10 +43,20 @@ type Player interface {
 type player struct {
 	name string
 	conn net.Conn
+	room Room
 	//trnansform Transform
 }
 
-func (p *player) SendMessage(m Message) {
+func (p *player) SendMessage(m Message) error {
 	m.Send(nil, p.conn)
-	fmt.Println("sending")
+	fmt.Println("sending", m.GetType())
+	return nil
+}
+func (p *player) SetRoom(r Room) error {
+	p.room = r
+	return nil
+}
+func (p *player) BroadcastRoom(m Message) error {
+	p.room.BroadcastMessage(m)
+	return nil
 }

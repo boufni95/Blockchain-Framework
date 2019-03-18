@@ -3,7 +3,6 @@ package gameserver
 import (
 	"fmt"
 	"net"
-	"reflect"
 )
 
 //------------------------------------------------------------------
@@ -12,6 +11,9 @@ import (
 
 //MessageType : the type of message to send
 type MessageType byte
+
+//TODO : implement DEFAULT MESSAGES
+//TODO : implement CUSTOM MESSAGES
 
 //MessageContent : the content of the message to send
 type MessageContent interface{}
@@ -40,6 +42,13 @@ const (
 	//1byte -> message type
 	VoidMessage MessageType = 3 // s <-> c
 
+	//InGameMessage : defines a type of messages that are send diring game
+	//STRUCTURE:
+	//1byte -> message type
+	//1byte -> in game message type
+	//Nbyte -> message
+	InGameMessage MessageType = 5
+	/*------------------------------------------------------------------------------------------------------
 	//ForceTransform : forces the client to set the players
 	//transform to the value sent
 	//STRUCTURE:
@@ -59,7 +68,7 @@ const (
 	//1byte -> message type
 	//
 	CompleteTransform MessageType = 12 // s <-> c
-
+	//-------------------------------------------------------------------------------------------------------*/
 	//StringName : message containing the name of the player
 	//STRUCTURE:
 	//1byte -> message type
@@ -87,13 +96,13 @@ const (
 	//4byte : owner
 	//1byte -> name length
 	//Nbyte -> name
-	NewInRoom MessageType = 24 // s-> c
+	NewInRoom MessageType = 24 // s <-> c
 
 	//NewOutRoom : a player exited the room
 	//STRUCTURE:
 	//1byte -> message type
 	//4byte -> owner
-	NewOutRoom MessageType = 26 // s-> c
+	NewOutRoom MessageType = 26 // s <-> c
 
 	//ChatAll : send text message to all players
 	//STRUCTURE:
@@ -179,6 +188,27 @@ const (
 	////Vector3int64 : send a vector of 3 64bit int
 	Vector3int64 MessageType = 106 // s <-> c
 )
+const (
+	//ForceTransform : forces the client to set the players
+	//transform to the value sent
+	//STRUCTURE:
+	//1byte -> message type
+	//12byte -> Vector3int position
+	ForceTransform MessageType = 1 // s -> c
+
+	//SimpleTransform : mesage containing a simple transform
+	//STRUCTURE:
+	//1byte -> message type
+	//4byte -> owner
+	//12byte -> Vector3int position
+	SimpleTransform MessageType = 5 // s <-> c
+
+	//CompleteTransform : message containing a coplete transform
+	//STRUCTURE:
+	//1byte -> message type
+	//
+	CompleteTransform MessageType = 7 // s <-> c
+)
 
 //------------------------------------------------------------------
 //-------------------INTERFACES-------------------------------------
@@ -188,8 +218,10 @@ const (
 type Message interface {
 	GetType() MessageType
 	GetContent() MessageContent
-	Send(Server, net.Conn)
+	Send(Server, net.Conn) error
+	SendInGame(Server, net.Conn) error
 	Mutate(MessageType, MessageContent)
+	GenerateMessage() []byte
 }
 
 //------------------------------------------------------------------
@@ -202,10 +234,11 @@ func NewMessage(mt MessageType, mc MessageContent) Message {
 	m.mType = mt
 	m.mContent = mc
 
-	fmt.Println("type ", mt, "content", reflect.TypeOf(mc))
+	//fmt.Println("type ", mt, "content", reflect.TypeOf(mc))
 	return &m
 }
 
+//TODO : use extract content instead of doing it directly
 func extractContent(mt MessageType, b []byte) MessageContent {
 	switch mt {
 	case VarString:
@@ -282,27 +315,139 @@ func (m *message) GetContent() MessageContent {
 	c := m.mContent
 	return c
 }
-func (m *message) Send(s Server, conn net.Conn) {
+func (m *message) Send(s Server, conn net.Conn) error {
 	switch m.mType {
 	case WelcomeMessage:
 		{
-			Bytes := make([]byte, 4)
 
-			intTo4Byte(&Bytes, m.mContent.(int), true)
+			Bytes := m.mContent.([]byte)
+
+			//intTo4Byte(&Bytes, m.mContent.(int), true)
 			toSend := make([]byte, 1)
 			toSend[0] = (byte)(m.mType)
 			toSend = append(toSend, Bytes...)
 			conn.Write(toSend)
-
+			fmt.Println("sendig welcome")
 		}
 	case StrangeMessage:
 		{
-
+			//TODO : implement StrangeMessage
 		}
 	case VoidMessage:
 		{
+			//TODO : implement VoidMessage
+		}
+	case InGameMessage:
+		{
+			Bytes := make([]byte, 1)
+			Bytes[0] = (byte)(m.mType)
+			c := m.mContent.(Message)
+			b := c.GenerateMessage()
+			Bytes = append(Bytes, b...)
+			conn.Write(Bytes)
+		}
+		/*
+			case ForceTransform:
+				{
+					//TODO : implement ForceTransform
+				}
+			case SimpleTransform: //TODO update simple transform
+				{
+					c := m.mContent.(struct {
+						code []byte
+						pos  []byte
+					})
+					toSend := make([]byte, 1)
+					toSend[0] = (byte)(m.mType)
+					toSend = append(toSend, c.code...)
+					toSend = append(toSend, c.pos...)
+					conn.Write(toSend)
+					spew.Dump(toSend)
+
+				}
+			case CompleteTransform:
+				{
+					//TODO : implement CompleteTransform
+				}
+		*/
+	case NameString:
+		{
+			//TODO : implement NameString
+		}
+	case NewConnection:
+		{
+			s := m.mContent.(struct {
+				code []byte
+				name []byte
+			})
+			toSend := make([]byte, 1)
+			toSend[0] = (byte)(m.mType)
+			Bytes := s.code
+			//intTo4Byte(&Bytes, s.code, true)
+			toSend = append(toSend, Bytes...)
+			toSend = append(toSend, (byte)(len(s.name)))
+			toSend = append(toSend, s.name...)
+			//spew.Dump(toSend)
+			conn.Write(toSend)
 
 		}
+	case NewDisconnection:
+		{
+			//TODO : implement NewDisconnection
+		}
+	case NewInRoom:
+		{
+			c := m.mContent.(struct {
+				owner []byte
+				nLen  []byte
+				name  []byte
+			})
+			toSend := make([]byte, 1)
+			toSend[0] = (byte)(m.mType)
+			toSend = append(toSend, c.owner...)
+			toSend = append(toSend, c.nLen...)
+			toSend = append(toSend, c.name...)
+			conn.Write(toSend)
+		}
+	case NewOutRoom:
+		{
+			//TODO : implement NewOutRoom
+		}
+	case ChatAll:
+		{
+			c := m.mContent.(struct {
+				nLen []byte
+				name []byte
+				mLen []byte
+				mess []byte
+			})
+			toSend := make([]byte, 1)
+			toSend[0] = (byte)(m.mType)
+			toSend = append(toSend, c.nLen...)
+			toSend = append(toSend, c.name...)
+			toSend = append(toSend, c.mLen...)
+			toSend = append(toSend, c.mess...)
+			conn.Write(toSend)
+		}
+	case ChatRoom:
+		{
+			//TODO : implement ChatRoom
+		}
+	case ChatTo:
+		{
+			//TODO : implement ChatTo
+		}
+	default:
+		{
+			//throw error here
+		}
+	}
+	return nil
+}
+
+//FIXME : this might be useless
+func (m *message) SendInGame(s Server, conn net.Conn) error {
+	switch m.mType {
 	case ForceTransform:
 		{
 
@@ -315,56 +460,31 @@ func (m *message) Send(s Server, conn net.Conn) {
 		{
 
 		}
-	case NameString:
+	}
+	return nil
+}
+func (m *message) GenerateMessage() []byte {
+	var b []byte
+	switch m.mType {
+	//TODO : add al cases
+	case ForceTransform:
 		{
 
 		}
-	case NewConnection:
-		{
-			s := m.mContent.(struct {
-				code int
-				name []byte
-			})
-			toSend := make([]byte, 1)
-			toSend[0] = (byte)(m.mType)
-			Bytes := make([]byte, 4)
-			intTo4Byte(&Bytes, s.code, true)
-			toSend = append(toSend, Bytes...)
-			toSend = append(toSend, (byte)(len(s.name)))
-			toSend = append(toSend, s.name...)
-			//spew.Dump(toSend)
-			conn.Write(toSend)
-
-		}
-	case NewDisconnection:
+	case SimpleTransform:
 		{
 
 		}
-	case NewInRoom:
-		{
-
-		}
-	case NewOutRoom:
-		{
-
-		}
-	case ChatAll:
-		{
-
-		}
-	case ChatRoom:
-		{
-
-		}
-	case ChatTo:
+	case CompleteTransform:
 		{
 
 		}
 	default:
 		{
-			//throw error here
+
 		}
 	}
+	return b
 }
 func (m *message) Mutate(mt MessageType, mc MessageContent) {
 	m.mType = mt

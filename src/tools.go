@@ -1,6 +1,9 @@
 package gameserver
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"math/rand"
+)
 
 func intTo4Byte(b *[]byte, i int, rev bool) {
 	binary.LittleEndian.PutUint32(*b, (uint32)(i))
@@ -10,4 +13,14 @@ func intTo4Byte(b *[]byte, i int, rev bool) {
 		}
 	}
 
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func randStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }
