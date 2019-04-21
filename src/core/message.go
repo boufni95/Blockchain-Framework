@@ -1,8 +1,10 @@
-package gameserver
+package core
 
 import (
 	"fmt"
 	"net"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 //------------------------------------------------------------------
@@ -22,114 +24,6 @@ type MessageContent interface{}
 //-------------------CONSTANTS--------------------------------------
 //------------------------------------------------------------------
 const (
-	//WelcomeMessage : message to send data to the client
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> client code
-	WelcomeMessage MessageType = 0 // s-> c
-
-	//StrangeMessage : message unknown to the clinet
-	//STRUCTURE:
-	//1byte -> message type
-	//1byte -> (last peace)?0:10
-	//1byte -> peace type
-	//N1bytes -> in some cases, peace length (es string)
-	//N2bytes ->peace
-	StrangeMessage MessageType = 1 // s -> c
-
-	//VoidMessage : message containing no information
-	//STRUCTURE:
-	//1byte -> message type
-	VoidMessage MessageType = 3 // s <-> c
-
-	//InGameMessage : defines a type of messages that are send diring game
-	//STRUCTURE:
-	//1byte -> message type
-	//1byte -> in game message type
-	//Nbyte -> message
-	InGameMessage MessageType = 5
-	/*------------------------------------------------------------------------------------------------------
-	//ForceTransform : forces the client to set the players
-	//transform to the value sent
-	//STRUCTURE:
-	//1byte -> message type
-	//12byte -> Vector3int position
-	ForceTransform MessageType = 5 // s -> c
-
-	//SimpleTransform : mesage containing a simple transform
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	//12byte -> Vector3int position
-	SimpleTransform MessageType = 10 // s <-> c
-
-	//CompleteTransform : message containing a coplete transform
-	//STRUCTURE:
-	//1byte -> message type
-	//
-	CompleteTransform MessageType = 12 // s <-> c
-	//-------------------------------------------------------------------------------------------------------*/
-	//StringName : message containing the name of the player
-	//STRUCTURE:
-	//1byte -> message type
-	//1byte -> name lenght
-	//Nbyte -> name
-	NameString MessageType = 18 // s <-> c
-
-	//NewConnection : a new player connected
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	//1byte -> name length
-	//Nbyte -> name
-	NewConnection MessageType = 20 // s -> c
-
-	//NewDisconnection : a player disconnected
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	NewDisconnection MessageType = 22 // s -> c
-
-	//NewInRoom : a player just connected to the room
-	//STRUCTURE:
-	//1byte : message type
-	//4byte : owner
-	//1byte -> name length
-	//Nbyte -> name
-	NewInRoom MessageType = 24 // s <-> c
-
-	//NewOutRoom : a player exited the room
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	NewOutRoom MessageType = 26 // s <-> c
-
-	//ChatAll : send text message to all players
-	//STRUCTURE:
-	//1byte -> message type
-	//1byte -> owner name lenght
-	//N1byte -> owner name
-	//1byte -> text message lenth
-	//N2byte -> text message
-	ChatAll MessageType = 30 // s <-> c better to s -> c
-
-	//ChatRoom : send text message to all in the room
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	//1byte -> text message lenght
-	//Nbyte -> text message
-	ChatRoom MessageType = 32 // s <-> c
-
-	//ChatTo : send text message to specific user
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	//4byte -> destination
-	//1byte -> text message length
-	//Nbyte -> text message
-	ChatTo MessageType = 34 // s <-> c
-
 	//These are used to build the message content
 
 	//VarString : sends a string with a numbr of bytes
@@ -188,27 +82,6 @@ const (
 	////Vector3int64 : send a vector of 3 64bit int
 	Vector3int64 MessageType = 106 // s <-> c
 )
-const (
-	//ForceTransform : forces the client to set the players
-	//transform to the value sent
-	//STRUCTURE:
-	//1byte -> message type
-	//12byte -> Vector3int position
-	ForceTransform MessageType = 1 // s -> c
-
-	//SimpleTransform : mesage containing a simple transform
-	//STRUCTURE:
-	//1byte -> message type
-	//4byte -> owner
-	//12byte -> Vector3int position
-	SimpleTransform MessageType = 5 // s <-> c
-
-	//CompleteTransform : message containing a coplete transform
-	//STRUCTURE:
-	//1byte -> message type
-	//
-	CompleteTransform MessageType = 7 // s <-> c
-)
 
 //------------------------------------------------------------------
 //-------------------INTERFACES-------------------------------------
@@ -238,7 +111,7 @@ func NewMessage(mt MessageType, mc MessageContent) Message {
 	return &m
 }
 
-//TODO : use extract content instead of doing it directly
+//FIXME : deprecated
 func extractContent(mt MessageType, b []byte) MessageContent {
 	switch mt {
 	case VarString:
@@ -339,11 +212,16 @@ func (m *message) Send(s Server, conn net.Conn) error {
 		}
 	case InGameMessage:
 		{
-			Bytes := make([]byte, 1)
-			Bytes[0] = (byte)(m.mType)
-			c := m.mContent.(Message)
-			b := c.GenerateMessage()
-			Bytes = append(Bytes, b...)
+			Bytes := make([]byte, 1) //create the byte slice
+
+			Bytes[0] = (byte)(m.mType) //put message type
+
+			c := m.mContent.(Message) // extract content
+
+			b := c.GenerateMessage() //gnerate messag
+
+			Bytes = append(Bytes, b...) //append and send
+			spew.Dump(Bytes)
 			conn.Write(Bytes)
 		}
 		/*
@@ -399,19 +277,26 @@ func (m *message) Send(s Server, conn net.Conn) error {
 		{
 			c := m.mContent.(struct {
 				owner []byte
+				pType byte
 				nLen  []byte
 				name  []byte
 			})
+			//TODO : add player type!!
 			toSend := make([]byte, 1)
 			toSend[0] = (byte)(m.mType)
 			toSend = append(toSend, c.owner...)
+			toSend = append(toSend, c.pType)
 			toSend = append(toSend, c.nLen...)
 			toSend = append(toSend, c.name...)
 			conn.Write(toSend)
 		}
 	case NewOutRoom:
 		{
-			//TODO : implement NewOutRoom
+			c := m.mContent.([]byte)
+			toSend := make([]byte, 1)
+			toSend[0] = (byte)(m.mType)
+			toSend = append(toSend, c...)
+			conn.Write(toSend)
 		}
 	case ChatAll:
 		{
@@ -463,6 +348,8 @@ func (m *message) SendInGame(s Server, conn net.Conn) error {
 	}
 	return nil
 }
+
+//GenerateMessage : extract content from message and gives a slice of bytes
 func (m *message) GenerateMessage() []byte {
 	var b []byte
 	switch m.mType {
@@ -473,11 +360,45 @@ func (m *message) GenerateMessage() []byte {
 		}
 	case SimpleTransform:
 		{
-
+			c := m.mContent.(struct {
+				code  []byte
+				pType byte
+				pos   []byte
+			})
+			b := make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			b = append(b, c.code...)
+			b = append(b, c.pType)
+			b = append(b, c.pos...)
+			return b
 		}
 	case CompleteTransform:
 		{
 
+		}
+	case NewObject:
+		{
+			c := m.mContent.([]byte)
+			b := make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			b = append(b, c...)
+			return b
+		}
+	case UpdateObject:
+		{
+			c := m.mContent.([]byte)
+			b := make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			b = append(b, c...)
+			return b
+		}
+	case DestroyObject:
+		{
+			c := m.mContent.([]byte)
+			b := make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			b = append(b, c...)
+			return b
 		}
 	default:
 		{

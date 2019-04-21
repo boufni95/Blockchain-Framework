@@ -1,4 +1,4 @@
-package gameserver
+package core
 
 import (
 	"fmt"

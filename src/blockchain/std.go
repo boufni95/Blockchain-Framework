@@ -1,24 +1,43 @@
-package gameserver
+package blockchain
 
 import (
 	"errors"
 	"fmt"
 	"net"
 
+	core "gameserver/src/core"
+
 	"github.com/davecgh/go-spew/spew"
 )
 
 //StdServer : create a standard server
-func StdServer() Server {
+func StdServer() core.Server {
+	/*sMods := []GameMode{{"stdMode"}}
+	sObjs := []GMObject{{"meteor"}}
+
+	sConfig := struct {
+		maxRooms int
+		clans    bool
+		gamemods []GameMode
+		objects  []GMObject
+	}{1, true, sMods, sObjs}
+
+	testObjs := []PObject{{"testObj", 1, 1, 1}}
+	pTypes := []PlayerType{{"testType", 1, 1, testObjs}}
+
+	pConfig := struct {
+		clan  bool
+		types []PlayerType
+	}{true, pTypes}*/
 
 	sc := stdServerConfig()
-	s := NewServer(sc)
+	s := core.NewServer(sc)
 	StdAddListeners(s)
 	return s
 
 }
-func stdServerConfig() ServerConfig {
-	sc := NewServerConfig(":8080", 1)
+func stdServerConfig() core.ServerConfig {
+	sc := core.NewServerConfig(":8080", 1)
 	return sc
 }
 
@@ -27,13 +46,13 @@ var defListen map[string]chan net.Conn
 //StdAddListeners :  add the standard listeners to the server
 //NEW CONNECTION
 //NEW DOSCONNECTION
-func StdAddListeners(s Server) {
+func StdAddListeners(s core.Server) {
 	defListen = make(map[string]chan net.Conn)
 	s.StatusIn("adding listener")
 	defListen["connected"] = s.AddListener("connected", stdOnConnected)
 
 }
-func stdOnConnected(s Server, conn net.Conn) {
+func stdOnConnected(s core.Server, conn net.Conn) {
 	for {
 		if err := StdReciveMessage(s, conn); err != nil {
 			fmt.Println(err)
@@ -41,41 +60,6 @@ func stdOnConnected(s Server, conn net.Conn) {
 		}
 
 	}
-	/*num := make([]byte, 1)
-	_, err := conn.Read(num)
-	if err != nil {
-		fmt.Println(err)
-	}
-	name := make([]byte, num[0])
-	_, err2 := conn.Read(name)
-	if err2 != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("connected:", string(name))
-
-
-	c := struct {
-		code int
-		name []byte
-	}{code, name}
-	wmess.Mutate(NewConnection, c)
-	s.BroadcastMessage(wmess)
-	for {
-		_, err := conn.Read(num)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-		if num[0] == (byte)(SimpleTransform) {
-			posB := make([]byte, 12)
-			_, err := conn.Read(posB)
-			if err != nil {
-				fmt.Println(err)
-				break
-			}
-			spew.Dump(posB)
-		}
-	}*/
 }
 func discF(s string) {
 	//TODO : implement disconnection
@@ -83,7 +67,9 @@ func discF(s string) {
 }
 
 //FIXME : implement messages for future users
-func StdReciveMessage(s Server, conn net.Conn) error {
+
+//StdReciveMessage : Standard function to recive messages
+func StdReciveMessage(s core.Server, conn net.Conn) error {
 	mType := make([]byte, 1)
 
 	_, err := conn.Read(mType)
@@ -91,73 +77,12 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 		fmt.Println(err)
 	}
 	fmt.Println("new mess", mType, "from ", conn.RemoteAddr().String())
-	switch (MessageType)(mType[0]) {
-	case VoidMessage:
+	switch (core.MessageType)(mType[0]) {
+	case core.VoidMessage:
 		{
 			//TODO : implement VoidMessage
 		}
-	case InGameMessage:
-		{
-			mgType := make([]byte, 1)
-			_, err := conn.Read(mgType)
-			if err != nil {
-				fmt.Println(err)
-			}
-			switch (MessageType)(mgType[0]) {
-			case SimpleTransform:
-				{
-					code := make([]byte, 4)
-					_, err := conn.Read(code)
-					if err != nil {
-						return err
-					}
-					pos := make([]byte, 12)
-					_, err1 := conn.Read(pos)
-					if err1 != nil {
-						return err1
-					}
-					c := struct {
-						code []byte
-						pos  []byte
-					}{code, pos}
-					mc := NewMessage(SimpleTransform, c)
-					m := NewMessage(InGameMessage, mc)
-					s.BroadcastMessageRoom(m, conn.RemoteAddr().String())
-				}
-			case CompleteTransform:
-				{
-
-				}
-			}
-		}
-		/*
-			case SimpleTransform:
-				{
-					code := make([]byte, 4)
-					_, err := conn.Read(code)
-					if err != nil {
-						return err
-					}
-					pos := make([]byte, 12)
-					_, err1 := conn.Read(pos)
-					if err1 != nil {
-						return err1
-					}
-					c := struct {
-						code []byte
-						pos  []byte
-					}{code, pos}
-					m := NewMessage(SimpleTransform, c)
-					s.BroadcastMessageRoom(m, conn.RemoteAddr().String())
-					//spew.Dump(code)
-					//spew.Dump(pos)
-				}
-			case CompleteTransform:
-				{
-					//TODO : implement CompleteTransform
-				}
-		*/
-	case NameString:
+	case core.NameString:
 		{
 			num := make([]byte, 1)
 			_, err := conn.Read(num)
@@ -171,25 +96,31 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 			}
 			fmt.Println("connected:", string(name))
 
-			code := s.AddPlayer(string(name), conn)
+			code := s.AddConnection(string(name), conn)
 			b := make([]byte, 4)
-			intTo4Byte(&b, code, true)
-			wmess := NewMessage(WelcomeMessage, b)
+			core.IntTo4Byte(&b, code, true)
+			wmess := core.NewMessage(core.WelcomeMessage, b)
 			wmess.Send(s, conn)
 			c := struct {
 				code []byte
 				name []byte
 			}{b, name}
-			wmess.Mutate(NewConnection, c)
+			wmess.Mutate(core.NewConnection, c)
 			s.BroadcastMessage(wmess)
 		}
-	case NewInRoom:
+	case core.NewInRoom:
 		{
 			owner := make([]byte, 4)
 			_, err := conn.Read(owner)
 			if err != nil {
 				fmt.Println(err)
 			}
+			pType := make([]byte, 1)
+			_, err4 := conn.Read(pType)
+			if err4 != nil {
+				fmt.Println(err4)
+			}
+			//TODO : read player type here!!
 			nLen := make([]byte, 1)
 			_, err2 := conn.Read(nLen)
 			if err2 != nil {
@@ -203,13 +134,14 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 			s.AssignRoom("", conn.RemoteAddr().String())
 			c := struct {
 				owner []byte
+				pType byte
 				nLen  []byte
 				name  []byte
-			}{owner, nLen, name}
-			mess := NewMessage(NewInRoom, c)
+			}{owner, pType[0], nLen, name}
+			mess := core.NewMessage(core.NewInRoom, c)
 			s.BroadcastMessageRoom(mess, conn.RemoteAddr().String())
 		}
-	case ChatAll:
+	case core.ChatAll:
 		{
 			num := make([]byte, 1)
 			_, err := conn.Read(num)
@@ -239,20 +171,20 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 				mLen []byte
 				mess []byte
 			}{num, name, n, mess}
-			cmess := NewMessage(ChatAll, c)
+			cmess := core.NewMessage(core.ChatAll, c)
 			s.BroadcastMessage(cmess)
 		}
-	case ChatRoom:
+	case core.ChatRoom:
 		{
 			//TODO : implement ChatRoom
 		}
-	case ChatTo:
+	case core.ChatTo:
 		{
 			//TODO : implement ChatTo
 		}
 	default:
 		{
-			return errors.New("Reciven unknown message type")
+			return errors.New("Recived unknown message type")
 		}
 	}
 	return nil

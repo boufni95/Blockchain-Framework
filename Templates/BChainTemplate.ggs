@@ -1,0 +1,25 @@
+{
+    "VERSION":".string",
+    "IMPORTS":[
+        "path# .string",
+        "..."
+    ],
+    "SOURCEIPS":[
+        {
+            "IP":".string",
+            "PORT":".int"
+        }
+    ],
+    "NODE":{
+        "MAXCONNECTED":".int",
+        "MINCONNECTED":".int",
+        "RETRYTIMEOUT":".int"
+    },
+    "BLOCK":{
+        "MAXPERMINUTE":".float",
+        "MAXBYTES":"int"
+
+    },
+    "MAXUTXO":"int",
+    "PROPOSEWINDOW":"int"
+}

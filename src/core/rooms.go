@@ -1,4 +1,4 @@
-package gameserver
+package core
 
 import "errors"
 
@@ -38,8 +38,8 @@ type Room interface {
 	FreeSpots() int
 	GetKey() string
 	BroadcastMessage(Message) error
-	AddPlayer(string) error
-	//TODO : RemovePlayer
+	AddConnection(string) error
+	//TODO : RemoveConnection
 }
 
 //------------------------------------------------------------------
@@ -81,7 +81,7 @@ func (r *room) BroadcastMessage(m Message) error {
 	}
 	return nil
 }
-func (r *room) AddPlayer(key string) error {
+func (r *room) AddConnection(key string) error {
 	for _, v := range r.players {
 		if v == key {
 			return errors.New("player already in the room")

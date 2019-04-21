@@ -1,11 +1,12 @@
-package gameserver
+package core
 
 import (
 	"encoding/binary"
 	"math/rand"
 )
 
-func intTo4Byte(b *[]byte, i int, rev bool) {
+//IntTo4Byte : convert an in into a slice of bytes
+func IntTo4Byte(b *[]byte, i int, rev bool) {
 	binary.LittleEndian.PutUint32(*b, (uint32)(i))
 	if rev == true {
 		for i, j := 0, len(*b)-1; i < j; i, j = i+1, j-1 {

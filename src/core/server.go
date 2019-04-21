@@ -1,4 +1,4 @@
-package gameserver
+package core
 
 import (
 	"errors"
@@ -28,8 +28,8 @@ type Server interface {
 	StatusIn(string)
 	AddRoom(string, int) error
 	RemoveRoom(string)
-	AddPlayer(string, net.Conn) int
-	RemovePlayer(string)
+	AddConnection(string, net.Conn) int
+	RemoveConnection(string)
 	BroadcastMessage(Message) error
 	BroadcastMessageRoom(Message, string) error
 	SendMessageToConn(Message, net.Conn) error
@@ -160,7 +160,7 @@ func (s *server) AddRoom(key string, maxP int) error {
 func (s *server) RemoveRoom(key string) {
 	//TODO : implement RemoveRoom
 }
-func (s *server) AddPlayer(st string, conn net.Conn) int {
+func (s *server) AddConnection(st string, conn net.Conn) int {
 	var p player
 	p.name = st
 	p.conn = conn
@@ -182,7 +182,7 @@ func (s *server) AddPlayer(st string, conn net.Conn) int {
 	}
 	return indx
 }
-func (s *server) RemovePlayer(st string) {
+func (s *server) RemoveConnection(st string) {
 	delete(s.players, st)
 	for i := range s.playersIndx {
 		if s.playersIndx[i] == st {
@@ -214,7 +214,7 @@ func (s *server) AssignRoom(keyR string, keyP string) {
 		//spew.Dump(s.rooms)
 		for i := range s.rooms {
 			if s.rooms[i].FreeSpots() > 0 {
-				s.rooms[i].AddPlayer(keyP)
+				s.rooms[i].AddConnection(keyP)
 				s.players[keyP].SetRoom(s.rooms[i])
 				break
 			}

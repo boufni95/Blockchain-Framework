@@ -1,0 +1,47 @@
+{
+    "VERSION":"0.1",
+    "IMPORTS":["test","test2"],
+    "GAME":{
+        "NAME":"SpaceWars",
+        "MAXROOMS":1,
+        "CLANS":true,
+        "GAMEMODS" :[
+            {
+                "NAME":"stdMode",
+                "CODE":1,
+                "MAXPLAYERS":0,
+                "LIFES":1,
+                "OBJECTS":[
+                    {
+                        "NAME":"meteor",
+                        "CODE":1,
+                        "LIFES":1,
+                        "DAMAGE":1,
+                        "TODO":"TODO"
+                    }
+                ],
+                "RULES":["TODO"]
+            }
+        ]  
+    },
+    "USER":{
+        "CLAN":true,
+        "TYPES":[
+            {
+                "NAME":"multishot",
+                "CODE":1,
+                "LIFES":1,
+                "OBJECTS":[
+                    {
+                        "NAME":"bullet",
+                        "CODE":1,
+                        "LIFES":1,
+                        "DAMAGE":1
+                    }
+                ],
+                "RULES":["TODO"]
+    }
+        ],
+        "RULES":[]
+    }
+}
