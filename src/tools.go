@@ -1,3 +1,6 @@
+// Review Remark: Should be a separate module (folder or smth..)
+// Review Remark: Specify what functionality is provided given the responsibility and clear name.
+
 package gameserver
 
 import (
@@ -5,6 +8,7 @@ import (
 	"math/rand"
 )
 
+// Review Remark: ByteToIntConverter.go
 func intTo4Byte(b *[]byte, i int, rev bool) {
 	binary.LittleEndian.PutUint32(*b, (uint32)(i))
 	if rev == true {
@@ -17,6 +21,7 @@ func intTo4Byte(b *[]byte, i int, rev bool) {
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+// Review Remark: ByteRandomizer.go
 func randStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {

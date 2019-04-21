@@ -68,26 +68,34 @@ type room struct {
 	server       Server
 }
 
+// Review Remark: Clear or reset could be a better name.
 func (r *room) FreeSpots() int {
+	// Review Remark: Naming!
 	s := r.maxPlayers - r.numConnected
 	return s
 }
+
+// Review Remark: Properties should go to top.
+// Review Remark: Naming!
 func (r *room) GetKey() string {
 	return r.key
 }
 func (r *room) BroadcastMessage(m Message) error {
+	// Review Remark: Naming!
 	for _, v := range r.players {
 		r.server.SendMessageToAddr(m, v)
 	}
 	return nil
 }
 func (r *room) AddPlayer(key string) error {
+	// Review Remark: Naming!
 	for _, v := range r.players {
 		if v == key {
 			return errors.New("player already in the room")
 		}
 
 	}
+	// Review Remark: Naming!
 	r.players = append(r.players, key)
 	return nil
 }

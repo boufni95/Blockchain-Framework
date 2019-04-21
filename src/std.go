@@ -41,6 +41,8 @@ func stdOnConnected(s Server, conn net.Conn) {
 		}
 
 	}
+
+	// Review Remark: If you don't use it- delete it! You have code control versioning system which keeps track of code.
 	/*num := make([]byte, 1)
 	_, err := conn.Read(num)
 	if err != nil {
@@ -82,6 +84,10 @@ func discF(s string) {
 	fmt.Println("disconnected:", s)
 }
 
+// Review Remark: Each message type should go to message object.
+// Review Remark: With polymorphic behaviour you could avoid those switch statements
+// Review Remark: Code smell: shotgun surgery. 3 places for the same responsibility.
+// Review Remark: Looks very much like the previous methods for message type.
 //FIXME : implement messages for future users
 func StdReciveMessage(s Server, conn net.Conn) error {
 	mType := make([]byte, 1)
@@ -98,6 +104,7 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 		}
 	case InGameMessage:
 		{
+			// Review Remark: Split to a separate function
 			mgType := make([]byte, 1)
 			_, err := conn.Read(mgType)
 			if err != nil {
@@ -157,6 +164,7 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 					//TODO : implement CompleteTransform
 				}
 		*/
+		// Review Remark: Split to a separate function
 	case NameString:
 		{
 			num := make([]byte, 1)
@@ -185,6 +193,7 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 		}
 	case NewInRoom:
 		{
+			// Review Remark: Split to a separate function
 			owner := make([]byte, 4)
 			_, err := conn.Read(owner)
 			if err != nil {
@@ -211,12 +220,14 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 		}
 	case ChatAll:
 		{
+			// Review Remark: Split to a separate function
 			num := make([]byte, 1)
 			_, err := conn.Read(num)
 			if err != nil {
 				fmt.Println(err)
 			}
 			name := make([]byte, num[0])
+			// Review Remark: Do you really need err2-4? Why can't you reuse the same error variable?
 			_, err2 := conn.Read(name)
 			if err2 != nil {
 				fmt.Println(err)
@@ -239,6 +250,7 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 				mLen []byte
 				mess []byte
 			}{num, name, n, mess}
+			// Review Remark: Naming!!!
 			cmess := NewMessage(ChatAll, c)
 			s.BroadcastMessage(cmess)
 		}
@@ -258,6 +270,8 @@ func StdReciveMessage(s Server, conn net.Conn) error {
 	return nil
 }
 
+
+// Review Remark: Delete!!!
 /*
 	var st = []byte("012345")
 	buff := make([]byte, 0)

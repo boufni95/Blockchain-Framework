@@ -1,5 +1,8 @@
 package gameserver
 
+// Review Remark: Consistently repeating switch statement is something to reconsider. Apply polymorphism and use polymorphic behaviour.
+// Review Remark: Right now the flow is procedural. Make it OO flow.
+
 import (
 	"fmt"
 	"net"
@@ -21,6 +24,10 @@ type MessageContent interface{}
 //------------------------------------------------------------------
 //-------------------CONSTANTS--------------------------------------
 //------------------------------------------------------------------
+// Review Remark: Inconsisten enum for types. 0,1,3,5,18..
+// Review Remark: Each if case could be a separate class.
+// Review Remark: By moving each case into a class of its' own, you no longer need to comment those structure cases.
+// Review Remark: You no longer need structure cases because it will be clear and short what is being done in those classes per case.
 const (
 	//WelcomeMessage : message to send data to the client
 	//STRUCTURE:
@@ -210,6 +217,7 @@ const (
 	CompleteTransform MessageType = 7 // s <-> c
 )
 
+// Review Remark:  Don't seperate stuff in comment blocks!
 //------------------------------------------------------------------
 //-------------------INTERFACES-------------------------------------
 //------------------------------------------------------------------
@@ -224,22 +232,27 @@ type Message interface {
 	GenerateMessage() []byte
 }
 
+// Review Remark: Don't use 3 lines for a single comment!
 //------------------------------------------------------------------
 //-------------------FUNCTIONS--------------------------------------
 //------------------------------------------------------------------
 
+// Review Remark: Redundant comment for obvious
 //NewMessage : creates a new message
 func NewMessage(mt MessageType, mc MessageContent) Message {
 	var m message
 	m.mType = mt
 	m.mContent = mc
-
+	// Review Remark: Commented out code!!
 	//fmt.Println("type ", mt, "content", reflect.TypeOf(mc))
 	return &m
 }
 
-//TODO : use extract content instead of doing it directly
+//TODO : use extract content instead of doing it directly.
+// Review Remark: Generics? (<Message>)
+// Review Remark: Switch statement seems to prepare the content to extract for sent message send to server.
 func extractContent(mt MessageType, b []byte) MessageContent {
+	// Review Remark: Code smell: Many switch cases. Prefer polymorphic behaviour.
 	switch mt {
 	case VarString:
 		{
@@ -298,35 +311,48 @@ func extractContent(mt MessageType, b []byte) MessageContent {
 	return nil
 }
 
+// Review Remark: Instead of message type, consider different object per it.
+// Review Remark: Just message itself should be the content of message.go
 //------------------------------------------------------------------
 //-------------------STRUCTS----------------------------------------
 //------------------------------------------------------------------
+// Review Remark: If you extend this to go for polymorphism, you will no longer need any of the switch cases!!!
+// Review Remark: OCP
 type message struct {
+	// Review Remark: m prefix is not needed.
 	mType    MessageType
+	// Review Remark: m prefix is not needed
 	mContent MessageContent
 }
 
+// Review Remark: Don't separate code blocks with comments like that
 //-----------------------------------------------------------------
 func (m *message) GetType() MessageType {
 	t := m.mType
 	return t
 }
+
 func (m *message) GetContent() MessageContent {
 	c := m.mContent
 	return c
 }
+// Review Remark: End of message.go
+
+// Review Remark: Sending a message is not the same as message itself. So it needs to be split
+// Review Remark: MessageSender or Transmitter is a name for component to consider.
 func (m *message) Send(s Server, conn net.Conn) error {
+
+	// Review Remark: One is a magic number. Should be messageStartIndex = 1.
+	toSend := make([]byte, 1)
+	toSend[0] = (byte)(m.mType)
+
+	// Move this to a function: PrepareByArray. Could be part of a message class (each type)
 	switch m.mType {
 	case WelcomeMessage:
 		{
-
 			Bytes := m.mContent.([]byte)
-
 			//intTo4Byte(&Bytes, m.mContent.(int), true)
-			toSend := make([]byte, 1)
-			toSend[0] = (byte)(m.mType)
 			toSend = append(toSend, Bytes...)
-			conn.Write(toSend)
 			fmt.Println("sendig welcome")
 		}
 	case StrangeMessage:
@@ -339,12 +365,11 @@ func (m *message) Send(s Server, conn net.Conn) error {
 		}
 	case InGameMessage:
 		{
-			Bytes := make([]byte, 1)
-			Bytes[0] = (byte)(m.mType)
+			// Review Remark: Clear naming is needed! don't use a single symbol for a name!!!!
 			c := m.mContent.(Message)
+			// Review Remark: Clear naming is needed! don't use a single symbol for a name!!!!
 			b := c.GenerateMessage()
 			Bytes = append(Bytes, b...)
-			conn.Write(Bytes)
 		}
 		/*
 			case ForceTransform:
@@ -376,19 +401,17 @@ func (m *message) Send(s Server, conn net.Conn) error {
 		}
 	case NewConnection:
 		{
+			// Review Remark: Clear naming is needed! don't use a single symbol for a name!!!!
 			s := m.mContent.(struct {
 				code []byte
 				name []byte
 			})
-			toSend := make([]byte, 1)
-			toSend[0] = (byte)(m.mType)
 			Bytes := s.code
 			//intTo4Byte(&Bytes, s.code, true)
 			toSend = append(toSend, Bytes...)
 			toSend = append(toSend, (byte)(len(s.name)))
 			toSend = append(toSend, s.name...)
 			//spew.Dump(toSend)
-			conn.Write(toSend)
 
 		}
 	case NewDisconnection:
@@ -397,17 +420,15 @@ func (m *message) Send(s Server, conn net.Conn) error {
 		}
 	case NewInRoom:
 		{
+			// Review Remark: Clear naming is needed! don't use a single symbol for a name!!!!
 			c := m.mContent.(struct {
 				owner []byte
 				nLen  []byte
 				name  []byte
 			})
-			toSend := make([]byte, 1)
-			toSend[0] = (byte)(m.mType)
 			toSend = append(toSend, c.owner...)
 			toSend = append(toSend, c.nLen...)
 			toSend = append(toSend, c.name...)
-			conn.Write(toSend)
 		}
 	case NewOutRoom:
 		{
@@ -415,19 +436,17 @@ func (m *message) Send(s Server, conn net.Conn) error {
 		}
 	case ChatAll:
 		{
+			// Review Remark: Clear naming is needed! don't use a single symbol for a name!!!!
 			c := m.mContent.(struct {
 				nLen []byte
 				name []byte
 				mLen []byte
 				mess []byte
 			})
-			toSend := make([]byte, 1)
-			toSend[0] = (byte)(m.mType)
 			toSend = append(toSend, c.nLen...)
 			toSend = append(toSend, c.name...)
 			toSend = append(toSend, c.mLen...)
 			toSend = append(toSend, c.mess...)
-			conn.Write(toSend)
 		}
 	case ChatRoom:
 		{
@@ -442,6 +461,9 @@ func (m *message) Send(s Server, conn net.Conn) error {
 			//throw error here
 		}
 	}
+
+	// Review Remark: Independant of switch. Move to outside of switch.
+	conn.Write(toSend)
 	return nil
 }
 
@@ -463,6 +485,7 @@ func (m *message) SendInGame(s Server, conn net.Conn) error {
 	}
 	return nil
 }
+
 func (m *message) GenerateMessage() []byte {
 	var b []byte
 	switch m.mType {

@@ -1,5 +1,6 @@
 package gameserver
 
+// Review Remark: Delete! You don't need it.
 /*
 func TestMain(m *testing.M) {
 	fmt.Println("testing main")

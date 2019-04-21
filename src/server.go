@@ -1,3 +1,7 @@
+// Review Remark: Too much going on in a single file.
+// Review Remark: Split to little modules
+// Review Remark: Tread server as a gateway which simply calls those smaller modules
+
 package gameserver
 
 import (
@@ -13,6 +17,7 @@ import (
 //EventFunc : is the type of the function passed to the events handler
 type EventFunc func(Server, net.Conn)
 
+// Review Remark: Separate file
 //------------------------------------------------------------------
 //-------------------INTERFACES-------------------------------------
 //------------------------------------------------------------------
@@ -24,7 +29,9 @@ type Server interface {
 	AddListener(string, EventFunc) chan net.Conn
 	RemoveListener(string, chan net.Conn)
 	Emit(string, net.Conn)
+	// Review Remark: Not clear what status is it?
 	Status() string
+	// Review Remark: Not clear what status is it?
 	StatusIn(string)
 	AddRoom(string, int) error
 	RemoveRoom(string)
@@ -38,6 +45,8 @@ type Server interface {
 }
 
 //ServerConfig : the interface of the server config
+// Review Remark: Port is a noun. Method names should be verbs.
+// Review Remark: Looks like a getter. If it is a getter, why do you need an interface (for data)?
 type ServerConfig interface {
 	Port() string
 }
@@ -71,6 +80,7 @@ func NewServer(sc ServerConfig) Server {
 //------------------------------------------------------------------
 
 type server struct {
+	// Review Remark: Rename to listener
 	ln          net.Listener
 	port        string
 	listeners   map[string][]chan net.Conn
@@ -82,12 +92,14 @@ type server struct {
 
 //-----------------------------------------------
 func (s *server) Start() error {
+	// Review Remark: private function: OpenPort()
 	var err error
 	s.ln, err = net.Listen("tcp", s.port)
 	if err != nil {
 		return err
 	}
 
+	// Review Remark: Clarify intention with a separate method
 	for {
 		conn, err := s.ln.Accept()
 		if err != nil {
@@ -148,6 +160,8 @@ func (s *server) Status() string {
 func (s *server) StatusIn(st string) {
 	s.status = st
 }
+
+// Review Remark: maxP- bad name
 func (s *server) AddRoom(key string, maxP int) error {
 
 	if _, ok := s.rooms[key]; ok == false {
@@ -205,6 +219,8 @@ func (s *server) SendMessageToConn(m Message, conn net.Conn) error {
 	//TODO : implement SendMessageToConn
 	return nil
 }
+
+// Review Remark: Reuse this method in BroadcastMessage.
 func (s *server) SendMessageToAddr(m Message, ip string) error {
 	s.players[ip].SendMessage(m)
 	return nil
