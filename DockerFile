@@ -1,0 +1,2 @@
+FROM golang:onbuild
+RUN CLinterface/main.go
