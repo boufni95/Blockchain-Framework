@@ -4,6 +4,7 @@
         "path# .string",
         "..."
     ],
+    "PORT":":8080",
     "GAME":{
         "NAME":".string",
         "MAXROOMS":".int",

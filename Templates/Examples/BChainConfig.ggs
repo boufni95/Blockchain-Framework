@@ -1,6 +1,7 @@
 {
     "VERSION":"0.1",
     "IMPORTS":[],
+    "PORT":":8080",
     "SOURCEIPS":[
         {
             "IP":"127.0.0.1",

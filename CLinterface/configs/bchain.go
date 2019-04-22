@@ -21,12 +21,18 @@ func ExtractBChainConfig(b []byte) (BChainConfig, error) {
 type BChainConfig struct {
 	VERSION       string
 	IMPORTS       []string
+	PORT          string
 	SOURCEIPS     []SourceIpConfig
 	NODE          NodeConfig
 	BLOCK         BlockConfig
 	MAXUTXO       int
 	PROPOSEWINDOW int
 }
+
+func (bcc *BChainConfig) Port() string {
+	return bcc.PORT
+}
+
 type SourceIpConfig struct {
 	IP   string
 	PORT int
@@ -79,6 +85,11 @@ func bchainCheckUnmarshalMap(m map[string]interface{}) error {
 		}
 	} else {
 		return errors.New("source ips not found")
+	}
+	if m["PORT"] != nil {
+		fmt.Println("Port: ", m["PORT"])
+	} else {
+		return errors.New("port not found")
 	}
 	if m["NODE"] != nil {
 		fmt.Println("node config found")

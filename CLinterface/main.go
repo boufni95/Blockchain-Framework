@@ -19,7 +19,8 @@ import (
 )
 
 func main() {
-
+	args := os.Args
+	spew.Dump(args)
 	reader := bufio.NewReader(os.Stdin)
 	cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
 	cmd.Stdout = os.Stdout
@@ -30,8 +31,7 @@ func main() {
 	fmt.Println("3 - Verify config wallet")
 	fmt.Println("4 - start game server")
 	fmt.Println("5 - start blockchain node")
-	fmt.Println("6 - start blockchain genesis node")
-	fmt.Println("7 - start blockchain wallet->create priv/pub key")
+	fmt.Println("6 - start blockchain wallet->create priv/pub key")
 	fmt.Print("-> ")
 	text, _ := reader.ReadString('\n')
 	switch text[0] {
@@ -58,16 +58,11 @@ func main() {
 	case '5':
 		{
 			fmt.Println("selected 5")
-			starterb(false)
+			starterb()
 		}
 	case '6':
 		{
 			fmt.Println("selected 6")
-			starterb(true)
-		}
-	case '7':
-		{
-			fmt.Println("selected 7")
 			starterw()
 		}
 	}
@@ -108,7 +103,7 @@ func starterg() {
 	s := game.StdServer()
 	s.Start()
 }
-func starterb(genesis bool) {
+func starterb() {
 	fmt.Println("not implemented")
 }
 func starterw() {

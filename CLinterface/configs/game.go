@@ -34,6 +34,7 @@ type GameObjectConfig struct {
 type GameServerConfig struct {
 	VERSION string
 	IMPORTS []string
+	PORT    string
 	GAME    GameConfig
 	USER    GameUserConfig
 }
@@ -93,7 +94,11 @@ func gameCheckUnmarshalMap(m map[string]interface{}) error {
 	} else {
 		return errors.New("imports not found")
 	}
-
+	if m["PORT"] != nil {
+		fmt.Println("Port: ", m["PORT"])
+	} else {
+		return errors.New("port not found")
+	}
 	if m["GAME"] != nil {
 		fmt.Println("-----Game configuration found")
 	} else {
