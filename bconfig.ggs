@@ -1,0 +1,21 @@
+{
+    "VERSION":"0.1",
+    "IMPORTS":[],
+    "PORT":":8080",
+    "SOURCEIPS":[
+        "192.168.99.100:9080",
+        "192.168.99.100:8090"
+    ],
+    "NODE":{
+        "MAXCONNECTED":10,
+        "MINCONNECTED":1,
+        "RETRYTIMEOUT":120
+    },
+    "BLOCK":{
+        "MAXPERMINUTE":0.1,
+        "MAXBYTES":1024
+
+    },
+    "MAXUTXO":20,
+    "PROPOSEWINDOW":180
+}

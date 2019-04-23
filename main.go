@@ -72,7 +72,12 @@ func main() {
 	case "-sb":
 		{
 			fmt.Println("start blockchain node")
-			err := bcstart.Starterb("../Templates/Examples/BChainConfig.ggs")
+			if len(args) < 3 {
+				fmt.Println("missing arguments")
+				return
+			}
+			path := args[2]
+			err := bcstart.Starterb(path)
 			if err != nil {
 				fmt.Println(err)
 			}
