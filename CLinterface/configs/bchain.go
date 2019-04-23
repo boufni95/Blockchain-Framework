@@ -4,15 +4,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"strings"
 )
 
-func ExtractBChainConfig(b []byte) (BChainConfig, error) {
+func ExtractBChainConfig(path string, debug bool) (BChainConfig, error) {
 	var config BChainConfig
-	var conf map[string]interface{}
-	json.Unmarshal(b, &conf)
-	if err := bchainCheckUnmarshalMap(conf); err != nil {
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Println("error :(")
 		return config, err
+	}
+
+	if debug {
+		var conf map[string]interface{}
+		json.Unmarshal(b, &conf)
+		if err := bchainCheckUnmarshalMap(conf); err != nil {
+			return config, err
+		}
 	}
 	json.Unmarshal(b, &config)
 	return config, nil
@@ -22,21 +31,17 @@ type BChainConfig struct {
 	VERSION       string
 	IMPORTS       []string
 	PORT          string
-	SOURCEIPS     []SourceIpConfig
+	SOURCEIPS     []string
 	NODE          NodeConfig
 	BLOCK         BlockConfig
 	MAXUTXO       int
 	PROPOSEWINDOW int
 }
 
-func (bcc *BChainConfig) Port() string {
+func (bcc BChainConfig) Port() string {
 	return bcc.PORT
 }
 
-type SourceIpConfig struct {
-	IP   string
-	PORT int
-}
 type NodeConfig struct {
 	MAXCONNECTED int
 	MINCONNECTED int
@@ -69,28 +74,27 @@ func bchainCheckUnmarshalMap(m map[string]interface{}) error {
 	} else {
 		return errors.New("imports not found")
 	}
-
-	if m["SOURCEIPS"] != nil {
-		imp := m["SOURCEIPS"].([]interface{})
-		fmt.Println("found:", len(imp), "source ips")
-		if len(imp) > 0 {
-			for i := 0; i < len(imp); i++ {
-				subs := imp[i].(map[string]interface{})
-				if subs["IP"] != nil && subs["PORT"] != nil {
-					fmt.Println("source ip #", i, subs["IP"], subs["PORT"])
-				} else {
-					return errors.New("source ip not found")
-				}
-			}
-		}
-	} else {
-		return errors.New("source ips not found")
-	}
 	if m["PORT"] != nil {
 		fmt.Println("Port: ", m["PORT"])
 	} else {
 		return errors.New("port not found")
 	}
+	if m["SOURCEIPS"] != nil {
+		imp := m["SOURCEIPS"].([]interface{})
+		fmt.Println("found:", len(imp), "source ips")
+		if len(imp) > 0 {
+			var s strings.Builder
+			for i := 0; i < len(imp); i++ {
+				subs := imp[i].(string)
+				s.WriteString(subs)
+				s.WriteString("; ")
+			}
+			fmt.Println("ips:", s.String())
+		}
+	} else {
+		return errors.New("source ips not found")
+	}
+
 	if m["NODE"] != nil {
 		fmt.Println("node config found")
 		c := m["NODE"].(map[string]interface{})

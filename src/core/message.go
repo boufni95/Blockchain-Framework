@@ -92,7 +92,6 @@ type Message interface {
 	GetType() MessageType
 	GetContent() MessageContent
 	Send(Server, net.Conn) error
-	SendInGame(Server, net.Conn) error
 	Mutate(MessageType, MessageContent)
 	GenerateMessage() []byte
 }
@@ -325,25 +324,6 @@ func (m *message) Send(s Server, conn net.Conn) error {
 	default:
 		{
 			//throw error here
-		}
-	}
-	return nil
-}
-
-//FIXME : this might be useless
-func (m *message) SendInGame(s Server, conn net.Conn) error {
-	switch m.mType {
-	case ForceTransform:
-		{
-
-		}
-	case SimpleTransform:
-		{
-
-		}
-	case CompleteTransform:
-		{
-
 		}
 	}
 	return nil

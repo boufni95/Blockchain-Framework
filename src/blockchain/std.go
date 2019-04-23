@@ -9,26 +9,8 @@ import (
 )
 
 //StdBCServer : create a standard server
-func StdBCServer() core.Server {
-	/*sMods := []GameMode{{"stdMode"}}
-	sObjs := []GMObject{{"meteor"}}
+func StdBCServer(sc core.ServerConfig) core.Server {
 
-	sConfig := struct {
-		maxRooms int
-		clans    bool
-		gamemods []GameMode
-		objects  []GMObject
-	}{1, true, sMods, sObjs}
-
-	testObjs := []PObject{{"testObj", 1, 1, 1}}
-	pTypes := []PlayerType{{"testType", 1, 1, testObjs}}
-
-	pConfig := struct {
-		clan  bool
-		types []PlayerType
-	}{true, pTypes}*/
-
-	sc := stdServerConfig()
 	s := core.NewServer(sc)
 	StdAddListeners(s)
 	return s

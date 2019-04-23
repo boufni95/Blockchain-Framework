@@ -82,6 +82,7 @@ type server struct {
 
 //-----------------------------------------------
 func (s *server) Start() error {
+	fmt.Println("starting server...")
 	var err error
 	s.ln, err = net.Listen("tcp", s.port)
 	if err != nil {

@@ -1,2 +1,6 @@
-FROM golang:onbuild
-RUN CLinterface/main.go
+FROM golang:latest
+
+WORKDIR /go/src/gameserver
+COPY . .
+RUN cd CLinterface && go install -v
+RUN go run CLinterface/main.go -vcb

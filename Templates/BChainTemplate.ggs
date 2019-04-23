@@ -6,10 +6,7 @@
     ],
     "PORT":".string",
     "SOURCEIPS":[
-        {
-            "IP":".string",
-            "PORT":".int"
-        }
+        ".string"
     ],
     "NODE":{
         "MAXCONNECTED":".int",

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -11,58 +10,62 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 
 	game "gameserver/src/game"
+
+	bcstart "gameserver/clinterface/bcstarter"
 
 	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
 	args := os.Args
-	spew.Dump(args)
+	/*spew.Dump(args)
 	reader := bufio.NewReader(os.Stdin)
 	cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 	printIco()
-	fmt.Println("1 - Verify config game")
-	fmt.Println("2 - Verify config bchain")
-	fmt.Println("3 - Verify config wallet")
-	fmt.Println("4 - start game server")
-	fmt.Println("5 - start blockchain node")
-	fmt.Println("6 - start blockchain wallet->create priv/pub key")
-	fmt.Print("-> ")
-	text, _ := reader.ReadString('\n')
-	switch text[0] {
-	case '1':
+	fmt.Println("-vcg - Verify config game")
+	fmt.Println("-vcb - Verify config bchain")
+	fmt.Println("-vcw - Verify config wallet")
+	fmt.Println("-sg - start game server")
+	fmt.Println("-sb - start blockchain node")
+	fmt.Println("-sw - start blockchain wallet->create priv/pub key")
+	fmt.Print("-> ")*/
+	//text, _ := reader.ReadString('\n')
+	switch args[1] {
+	case "-vcg":
 		{
-			fmt.Println("selected 1")
+			fmt.Println("Verify config game")
 			importerg()
 		}
-	case '2':
+	case "-vcb":
 		{
-			fmt.Println("selected 2")
+			fmt.Println("Verify config bchain")
 			importerc()
 		}
-	case '3':
+	case "-vcw":
 		{
-			fmt.Println("selected 3")
+			fmt.Println("Verify config wallet")
 			importerw()
 		}
-	case '4':
+	case "-sg":
 		{
-			fmt.Println("selected 4")
+			fmt.Println("start game server")
 			starterg()
 		}
-	case '5':
+	case "-sb":
 		{
-			fmt.Println("selected 5")
-			starterb()
+			fmt.Println("start blockchain node")
+			err := bcstart.Starterb("../Templates/Examples/BChainConfig.ggs")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
-	case '6':
+	case "-sw":
 		{
-			fmt.Println("selected 6")
+			fmt.Println("start blockchain wallet->create priv/pub key")
 			starterw()
 		}
 	}
@@ -82,14 +85,8 @@ func importerg() {
 	}
 }
 func importerc() {
-
-	b, err := ioutil.ReadFile("../Templates/Examples/BChainConfig.ggs")
-	if err != nil {
-		fmt.Println("error :(")
-		return
-	}
-	var config conf.BChainConfig
-	config, err = conf.ExtractBChainConfig(b)
+	path := "../Templates/Examples/BChainConfig.ggs"
+	config, err := conf.ExtractBChainConfig(path, true)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -103,9 +100,7 @@ func starterg() {
 	s := game.StdServer()
 	s.Start()
 }
-func starterb() {
-	fmt.Println("not implemented")
-}
+
 func starterw() {
 	fmt.Println("not implemented")
 	fmt.Println("creating a key pair...")
