@@ -6,14 +6,14 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	conf "gameserver/CLinterface/configs"
+	conf "GGS/CLinterface/configs"
 	"io/ioutil"
 	"log"
 	"os"
 
-	game "gameserver/src/game"
+	game "GGS/src/game"
 
-	bcstart "gameserver/clinterface/bcstarter"
+	bcstart "GGS/clinterface/bcstarter"
 
 	"github.com/davecgh/go-spew/spew"
 )

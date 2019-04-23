@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	core "gameserver/src/core"
+	core "GGS/src/core"
 
 	"github.com/davecgh/go-spew/spew"
 )

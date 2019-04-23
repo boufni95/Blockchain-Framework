@@ -1,6 +1,6 @@
 FROM golang:latest
 
-WORKDIR /go/src/gameserver
+WORKDIR /go/src/GGS
 COPY . .
 RUN cd CLinterface && go install -v
 RUN go run CLinterface/main.go -vcb

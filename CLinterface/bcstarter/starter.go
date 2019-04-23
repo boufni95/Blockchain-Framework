@@ -2,8 +2,8 @@ package bcstarter
 
 import (
 	"fmt"
-	conf "gameserver/CLinterface/configs"
-	bchain "gameserver/src/blockchain"
+	conf "GGS/CLinterface/configs"
+	bchain "GGS/src/blockchain"
 	"net"
 )
 

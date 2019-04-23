@@ -1,7 +1,7 @@
 package main
 
 import (
-	gs "gameserver/src"
+	gs "GGS/src/game"
 )
 
 func main() {
