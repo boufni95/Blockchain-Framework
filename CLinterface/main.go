@@ -1,21 +1,21 @@
 package main
 
 import (
+	conf "GGS/CLinterface/configs"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	conf "GGS/CLinterface/configs"
 	"io/ioutil"
 	"log"
 	"os"
 
 	game "GGS/src/game"
 
-	bcstart "GGS/clinterface/bcstarter"
+	bcstart "GGS/CLinterface/bcstarter"
 
-	"github.com/davecgh/go-spew/spew"
+	spew "github.com/davecgh/go-spew/spew"
 )
 
 func main() {

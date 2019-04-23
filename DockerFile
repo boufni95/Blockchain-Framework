@@ -1,6 +1,6 @@
 FROM golang:latest
-
-WORKDIR /go/src/GGS
-COPY . .
-RUN cd CLinterface && go install -v
-RUN go run CLinterface/main.go -vcb
+ENV GOPATH /go
+WORKDIR src/GGS
+RUN pwd
+RUN go get github.com/davecgh/go-spew/spew
+RUN go get github.com/boufni95/GGS
