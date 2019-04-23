@@ -34,6 +34,11 @@ func main() {
 	fmt.Println("-sw - start blockchain wallet->create priv/pub key")
 	fmt.Print("-> ")*/
 	//text, _ := reader.ReadString('\n')
+	fmt.Println("welcome to ggs...")
+	if len(args) < 2 {
+		fmt.Println("missing arguments")
+		return
+	}
 	switch args[1] {
 	case "-vcg":
 		{
@@ -43,7 +48,16 @@ func main() {
 	case "-vcb":
 		{
 			fmt.Println("Verify config bchain")
-			importerc()
+			if len(args) < 3 {
+				fmt.Println("missing arguments")
+				return
+			}
+			path := args[2]
+			config, err := conf.ExtractBChainConfig(path, true)
+			if err != nil {
+				fmt.Println(err)
+			}
+			spew.Dump(config)
 		}
 	case "-vcw":
 		{

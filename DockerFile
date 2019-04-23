@@ -1,7 +1,7 @@
 FROM golang:latest
-ENV GOPATH /go
 WORKDIR src/GGS
-RUN pwd
+COPY . .
 RUN go get github.com/davecgh/go-spew/spew
-RUN go get github.com/boufni95/GGS
-RUN go run CLinterface/main.go
+RUN go build main.go
+
+ENTRYPOINT [ "./main" ]
