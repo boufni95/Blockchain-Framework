@@ -19,9 +19,9 @@ func Starterb(pathConfig string) error {
 			fmt.Println(err)
 			continue
 		}
-		b := make([]byte, 1)
-		b[0] = (byte)(core.StrangeMessage)
-		conn.Write(b)
+		iam := core.NewMessage(core.IAmNode, nil)
+		bcm := core.NewMessage(core.BChainMessage, iam)
+		bcm.Send(nil, conn)
 	}
 	s := bchain.StdBCServer(sc)
 	s.Start()

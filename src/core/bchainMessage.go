@@ -2,7 +2,7 @@ package core
 
 const (
 	//AreYouNode ask a connection if it is a node
-	AreYouNode MessageType = 1 //
+	AreYouNode MessageType = 1 //DELETE
 
 	//IAmNode say that you are a node
 	IAmNode MessageType = 3 //
@@ -46,3 +46,22 @@ const (
 	//MyNextBlock propose a new block
 	MyNextBlock MessageType = 31
 )
+
+type BCMessage interface {
+	Message
+	GenerateBCMessage() []byte
+}
+
+func (m *message) GenerateBCMessage() []byte {
+	var b []byte
+	switch m.mType {
+	case IAmNode:
+		{
+			//TODO: write send to write generate
+			b = make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			return b
+		}
+	}
+	return b
+}

@@ -93,7 +93,7 @@ type Message interface {
 	GetContent() MessageContent
 	Send(Server, net.Conn) error
 	Mutate(MessageType, MessageContent)
-	GenerateMessage() []byte
+	GenerateGameMessage() []byte
 }
 
 //------------------------------------------------------------------
@@ -217,36 +217,28 @@ func (m *message) Send(s Server, conn net.Conn) error {
 
 			c := m.mContent.(Message) // extract content
 
-			b := c.GenerateMessage() //gnerate messag
+			b := c.GenerateGameMessage() //gnerate messag
 
 			Bytes = append(Bytes, b...) //append and send
+			fmt.Println("sending...")
 			spew.Dump(Bytes)
 			conn.Write(Bytes)
 		}
-		/*
-			case ForceTransform:
-				{
-					//TODO : implement ForceTransform
-				}
-			case SimpleTransform: //TODO update simple transform
-				{
-					c := m.mContent.(struct {
-						code []byte
-						pos  []byte
-					})
-					toSend := make([]byte, 1)
-					toSend[0] = (byte)(m.mType)
-					toSend = append(toSend, c.code...)
-					toSend = append(toSend, c.pos...)
-					conn.Write(toSend)
-					spew.Dump(toSend)
+	case BChainMessage:
+		{
+			Bytes := make([]byte, 1) //create the byte slice
 
-				}
-			case CompleteTransform:
-				{
-					//TODO : implement CompleteTransform
-				}
-		*/
+			Bytes[0] = (byte)(m.mType) //put message type
+
+			c := m.mContent.(BCMessage) // extract content
+
+			b := c.GenerateBCMessage() //gnerate messag
+
+			Bytes = append(Bytes, b...) //append and send
+			fmt.Println("sending...")
+			spew.Dump(Bytes)
+			conn.Write(Bytes)
+		}
 	case NameString:
 		{
 			//TODO : implement NameString
@@ -329,8 +321,8 @@ func (m *message) Send(s Server, conn net.Conn) error {
 	return nil
 }
 
-//GenerateMessage : extract content from message and gives a slice of bytes
-func (m *message) GenerateMessage() []byte {
+//GenerateGameMessage : extract content from message and gives a slice of bytes
+func (m *message) GenerateGameMessage() []byte {
 	var b []byte
 	switch m.mType {
 	//TODO : add al cases
