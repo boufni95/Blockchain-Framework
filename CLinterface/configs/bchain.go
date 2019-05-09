@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"GGS/src/blockchain"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,23 +9,27 @@ import (
 	"strings"
 )
 
-func ExtractBChainConfig(path string, debug bool) (BChainConfig, error) {
-	var config BChainConfig
+func ExtractBChainConfig(config *BChainConfig, path string, debug bool) (string, error) {
+
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("error :(")
-		return config, err
+		return "", err
 	}
 
 	if debug {
 		var conf map[string]interface{}
 		json.Unmarshal(b, &conf)
 		if err := bchainCheckUnmarshalMap(conf); err != nil {
-			return config, err
+			return "", err
 		}
 	}
-	json.Unmarshal(b, &config)
-	return config, nil
+	err = json.Unmarshal(b, &config)
+	if err != nil {
+		return "", err
+	}
+	h := blockchain.HashSha256(b)
+	return h, nil
 }
 
 type BChainConfig struct {

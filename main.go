@@ -53,7 +53,8 @@ func main() {
 				return
 			}
 			path := args[2]
-			config, err := conf.ExtractBChainConfig(path, true)
+			var config conf.BChainConfig
+			_, err := conf.ExtractBChainConfig(&config, path, true)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -105,7 +106,8 @@ func importerg() {
 }
 func importerc() {
 	path := "../Templates/Examples/BChainConfig.ggs"
-	config, err := conf.ExtractBChainConfig(path, true)
+	var config conf.BChainConfig
+	_, err := conf.ExtractBChainConfig(&config, path, true)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -52,7 +52,7 @@ func NewRoom(s Server, key string, maxP int) Room {
 	r.key = key
 	r.maxPlayers = maxP
 	r.numConnected = 0
-	r.players = make([]string, 0)
+	r.players = make(map[string]bool)
 	r.server = s
 	return &r
 }
@@ -64,7 +64,7 @@ type room struct {
 	key          string
 	maxPlayers   int
 	numConnected int
-	players      []string
+	players      map[string]bool
 	server       Server
 }
 
@@ -76,18 +76,26 @@ func (r *room) GetKey() string {
 	return r.key
 }
 func (r *room) BroadcastMessage(m Message) error {
-	for _, v := range r.players {
-		r.server.SendMessageToAddr(m, v)
+	for key, v := range r.players {
+		if v == true {
+			r.server.SendMessageToAddr(m, key)
+		}
 	}
 	return nil
 }
 func (r *room) AddConnection(key string) error {
-	for _, v := range r.players {
+	/*for _, v := range r.players {
 		if v == key {
 			return errors.New("player already in the room")
 		}
 
 	}
 	r.players = append(r.players, key)
+	return nil*/
+	is, ok := r.players[key]
+	if ok == true && is == true {
+		return errors.New("player already in the room")
+	}
+	r.players[key] = true
 	return nil
 }

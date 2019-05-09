@@ -5,12 +5,18 @@ const (
 	AreYouNode MessageType = 1 //DELETE
 
 	//IAmNode say that you are a node
-	IAmNode MessageType = 3 //
+	//Structure
+	//1byte -> message type
+	IAmNode MessageType = 3
 
 	//IAmReady say you are ready
 	IAmReady MessageType = 5
 
 	//MyConfig send my config for check
+	//Structure
+	//1byte -> message type
+	//1byte -> hash len
+	//Nbytes-> hash
 	MyConfig MessageType = 7
 
 	//GiveMeNodes ask for other connected nodes
@@ -61,6 +67,16 @@ func (m *message) GenerateBCMessage() []byte {
 			b = make([]byte, 1)
 			b[0] = (byte)(m.mType)
 			return b
+		}
+	case MyConfig:
+		{
+			b = make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			conf := m.mContent.([]byte)
+			b = append(b, (byte)(len(conf)))
+			b = append(b, conf...)
+			return b
+
 		}
 	}
 	return b

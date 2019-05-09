@@ -9,8 +9,14 @@ import (
 )
 
 func Starterb(pathConfig string) error {
-	sc, err := conf.ExtractBChainConfig(pathConfig, false)
+	var sc conf.BChainConfig
+	h, err := conf.ExtractBChainConfig(&sc, pathConfig, false)
 	if err != nil {
+		return err
+	}
+	fmt.Println("hash", h)
+	s := bchain.StdBCServer(sc)
+	if err := s.SetVar("ConfigHash", h); err != nil {
 		return err
 	}
 	for _, v := range sc.SOURCEIPS {
@@ -22,8 +28,9 @@ func Starterb(pathConfig string) error {
 		iam := core.NewMessage(core.IAmNode, nil)
 		bcm := core.NewMessage(core.BChainMessage, iam)
 		bcm.Send(nil, conn)
+		s.Emit("connected", conn)
+
 	}
-	s := bchain.StdBCServer(sc)
 	s.Start()
 	return nil
 }

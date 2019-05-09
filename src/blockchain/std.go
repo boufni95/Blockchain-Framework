@@ -30,9 +30,12 @@ func StdAddListeners(s core.Server) {
 	defListen = make(map[string]chan net.Conn)
 	s.StatusIn("adding listener")
 	defListen["connected"] = s.AddListener("connected", stdOnConnected)
+	defListen["bcmex"] = s.AddListener("bcmex", HandleBCmessage)
 
 }
 func stdOnConnected(s core.Server, conn net.Conn) {
+
+	fmt.Println()
 	for {
 		if err := StdReciveMessage(s, conn); err != nil {
 			fmt.Println(err)
@@ -65,6 +68,7 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 		{
 			fmt.Println("recived bc message")
 			HandleBCmessage(s, conn)
+
 		}
 	case core.NameString:
 		{
@@ -93,7 +97,6 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 }
 func HandleBCmessage(s core.Server, conn net.Conn) {
 	mType := make([]byte, 1)
-
 	_, err := conn.Read(mType)
 	if err != nil {
 		fmt.Println(err)
@@ -102,6 +105,32 @@ func HandleBCmessage(s core.Server, conn net.Conn) {
 	case core.IAmNode:
 		{
 			fmt.Println("recived I am node")
+			hash, err := s.GetVar("ConfigHash")
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				hb := ([]byte)(hash.(string))
+				confMex := core.NewMessage(core.MyConfig, hb)
+				bcm := core.NewMessage(core.BChainMessage, confMex)
+				//spew.Dump(confMex)
+				bcm.Send(nil, conn)
+			}
+
+		}
+	case core.MyConfig:
+		{
+			lenb := make([]byte, 1)
+			_, err := conn.Read(lenb)
+			if err != nil {
+				fmt.Println(err)
+			}
+			hash := make([]byte, lenb[0])
+			_, err = conn.Read(hash)
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Println("recived hash:", string(hash))
 		}
 	}
+
 }

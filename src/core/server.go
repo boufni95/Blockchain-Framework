@@ -34,7 +34,9 @@ type Server interface {
 	BroadcastMessageRoom(Message, string) error
 	SendMessageToConn(Message, net.Conn) error
 	SendMessageToAddr(Message, string) error
-	AssignRoom(string, string)
+	AssignRoom(string, string) error
+	SetVar(string, interface{}) error
+	GetVar(string) (interface{}, error)
 }
 
 //ServerConfig : the interface of the server config
@@ -62,6 +64,7 @@ func NewServer(sc ServerConfig) Server {
 	s.rooms = make(map[string]Room)
 	s.status = "created"
 	s.AddRoom(randStringBytes(8), 100)
+	s.vars = make(map[string]interface{})
 	return &s
 
 }
@@ -78,6 +81,7 @@ type server struct {
 	players     map[string]Player
 	playersIndx []string
 	rooms       map[string]Room
+	vars        map[string]interface{}
 }
 
 //-----------------------------------------------
@@ -210,7 +214,7 @@ func (s *server) SendMessageToAddr(m Message, ip string) error {
 	s.players[ip].SendMessage(m)
 	return nil
 }
-func (s *server) AssignRoom(keyR string, keyP string) {
+func (s *server) AssignRoom(keyR string, keyP string) error {
 	if keyR == "" {
 		//spew.Dump(s.rooms)
 		for i := range s.rooms {
@@ -222,9 +226,30 @@ func (s *server) AssignRoom(keyR string, keyP string) {
 		}
 		//spew.Dump(s.rooms)
 	} else {
-		//assign specific room
-		//TODO : implement specific room assignement
+		if _, ok := s.rooms[keyR]; ok == false {
+			s.AddRoom(keyR, 100) //TODO substitute 100 with server config number
+		}
+		if s.rooms[keyR].FreeSpots() > 0 {
+			s.rooms[keyR].AddConnection(keyP)
+			s.players[keyP].SetRoom(s.rooms[keyR])
+		} else {
+			return errors.New("the room is full")
+		}
 	}
+	return nil
+}
+func (s *server) SetVar(name string, value interface{}) error {
+	if _, ok := s.vars[name]; ok == true {
+		return errors.New("the variable name already exists")
+	}
+	s.vars[name] = value
+	return nil
+}
+func (s *server) GetVar(name string) (interface{}, error) {
+	if v, ok := s.vars[name]; ok == true {
+		return v, nil
+	}
+	return nil, errors.New("variable not found")
 }
 
 //==========================================================

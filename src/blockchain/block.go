@@ -1,8 +1,6 @@
 package blockchain
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"time"
 )
@@ -41,10 +39,8 @@ func (b *Block) CalculateHash() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	h := sha256.New()
-	h.Write([]byte(record))
-	hashed := h.Sum(nil)
-	return hex.EncodeToString(hashed), nil
+	h := HashSha256(record)
+	return h, nil
 }
 func GenerateBlock(oldBlock Block, txs []Transaction) (Block, error) {
 
