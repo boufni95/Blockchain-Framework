@@ -130,6 +130,27 @@ func HandleBCmessage(s core.Server, conn net.Conn) {
 				fmt.Println(err)
 			}
 			fmt.Println("recived hash:", string(hash))
+			myhash, err := s.GetVar("ConfigHash")
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				verified := true
+				myh := ([]byte)(myhash.(string))
+				if len(myh) != len(hash) {
+					verified = false
+				} else {
+					for i, v := range hash {
+						if v != myh[i] {
+							verified = false
+						}
+					}
+				}
+				fmt.Println("hash verif:", verified)
+				err := s.AssignRoom("verified", conn.RemoteAddr().String())
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
 		}
 	}
 
