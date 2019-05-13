@@ -154,10 +154,10 @@ func (s *server) StatusIn(st string) {
 	s.status = st
 }
 func (s *server) AddRoom(key string, maxP int) error {
-
 	if _, ok := s.rooms[key]; ok == false {
 		r := NewRoom(s, key, maxP)
 		s.rooms[key] = r
+
 		return nil
 	}
 	return errors.New("the key room already exists")
@@ -226,12 +226,14 @@ func (s *server) AssignRoom(keyR string, keyP string) error {
 		}
 		//spew.Dump(s.rooms)
 	} else {
+
 		if _, ok := s.rooms[keyR]; ok == false {
 			s.AddRoom(keyR, 100) //TODO substitute 100 with server config number
 		}
 		if s.rooms[keyR].FreeSpots() > 0 {
 			s.rooms[keyR].AddConnection(keyP)
 			s.players[keyP].SetRoom(s.rooms[keyR])
+			fmt.Println("imma here m8")
 		} else {
 			return errors.New("the room is full")
 		}

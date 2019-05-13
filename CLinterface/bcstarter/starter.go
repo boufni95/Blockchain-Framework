@@ -6,6 +6,9 @@ import (
 	"GGS/src/core"
 	"fmt"
 	"net"
+	"time"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func Starterb(pathConfig string) error {
@@ -19,6 +22,10 @@ func Starterb(pathConfig string) error {
 	if err := s.SetVar("ConfigHash", h); err != nil {
 		return err
 	}
+	t := time.Now()
+	txs := make([]bchain.Transaction, 0)
+	genesis := bchain.Block{0, t.String(), txs, "", ""}
+	spew.Dump(genesis)
 	for _, v := range sc.SOURCEIPS {
 		conn, err := net.Dial("tcp", v)
 		if err != nil {

@@ -146,7 +146,9 @@ func HandleBCmessage(s core.Server, conn net.Conn) {
 					}
 				}
 				fmt.Println("hash verif:", verified)
+				s.AddConnection(conn.RemoteAddr().String(), conn)
 				err := s.AssignRoom("verified", conn.RemoteAddr().String())
+
 				if err != nil {
 					fmt.Println(err)
 				}

@@ -1,6 +1,8 @@
 package core
 
-import "errors"
+import (
+	"errors"
+)
 
 //------------------------------------------------------------------
 //-------------------TYPES------------------------------------------
@@ -49,6 +51,7 @@ type Room interface {
 //NewRoom : returns a new room given the key and max players
 func NewRoom(s Server, key string, maxP int) Room {
 	var r room
+
 	r.key = key
 	r.maxPlayers = maxP
 	r.numConnected = 0
