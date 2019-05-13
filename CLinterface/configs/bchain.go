@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//ExtractBChainConfig : extract blockchain configuration from file
 func ExtractBChainConfig(config *BChainConfig, path string, debug bool) (string, error) {
 
 	b, err := ioutil.ReadFile(path)
@@ -32,6 +33,7 @@ func ExtractBChainConfig(config *BChainConfig, path string, debug bool) (string,
 	return h, nil
 }
 
+//BChainConfig : struct for the blockchain configuration
 type BChainConfig struct {
 	VERSION       string
 	IMPORTS       []string
@@ -43,15 +45,19 @@ type BChainConfig struct {
 	PROPOSEWINDOW int
 }
 
+//Port : return the port from the configuration
 func (bcc BChainConfig) Port() string {
 	return bcc.PORT
 }
 
+//NodeConfig : struct of configurations about blockchain nodes
 type NodeConfig struct {
 	MAXCONNECTED int
 	MINCONNECTED int
 	RETRYTIMEOUT int
 }
+
+//BlockConfig : struct of configuration of single block
 type BlockConfig struct {
 	MAXPERMINUTE float64
 	MAXBYTES     int

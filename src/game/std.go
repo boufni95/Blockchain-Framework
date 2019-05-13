@@ -10,18 +10,25 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
+//GameMode : game mode from config
 type GameMode struct {
 	name string
 }
+
+//GMObject : game mode object
 type GMObject struct {
 	name string
 }
+
+//PlayerType : player type
 type PlayerType struct {
 	name    string
 	code    byte
 	lifes   byte
 	objects []PObject
 }
+
+//PObject : player object
 type PObject struct {
 	name   string
 	code   byte

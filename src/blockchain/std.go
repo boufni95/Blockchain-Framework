@@ -95,6 +95,8 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 	}
 	return nil
 }
+
+//HandleBCmessage : recive bc messages and answer them
 func HandleBCmessage(s core.Server, conn net.Conn) {
 	mType := make([]byte, 1)
 	_, err := conn.Read(mType)

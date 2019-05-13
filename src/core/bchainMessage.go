@@ -53,6 +53,7 @@ const (
 	MyNextBlock MessageType = 31
 )
 
+//BCMessage : interface for a blockchain message
 type BCMessage interface {
 	Message
 	GenerateBCMessage() []byte

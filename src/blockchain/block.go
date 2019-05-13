@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//Block : struct of a blockchan block
 type Block struct {
 	Index        int
 	Timestamp    string
@@ -12,22 +13,29 @@ type Block struct {
 	Hash         string
 	PrevHash     string
 }
+
+//Transaction : struct of a blockchain transaction
 type Transaction struct {
 	nTxsIn  int
 	TxsIn   []TxIn
 	nTxsOut int
 	TxsOut  []TxOut
 }
+
+//TxIn : struct for bc transaction input
 type TxIn struct {
 	PrevTx    string
 	Index     int
 	ScriptSig string
 }
+
+//TxOut : struct for bc transaction output
 type TxOut struct {
 	Value        int
 	ScriptPubKey string
 }
 
+//CalculateHash : calcumate has of the block
 func (b *Block) CalculateHash() (string, error) {
 	toHash := struct {
 		Index        int
@@ -42,6 +50,8 @@ func (b *Block) CalculateHash() (string, error) {
 	h := HashSha256(record)
 	return h, nil
 }
+
+//GenerateBlock : generate a new block from an old block and some txs
 func GenerateBlock(oldBlock Block, txs []Transaction) (Block, error) {
 
 	var newBlock Block

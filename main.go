@@ -160,6 +160,8 @@ func starterw() {
 	ioutil.WriteFile("pubkey.ggs", bPub, 0644)
 
 }
+
+/*
 func PrintIco() {
 	fmt.Println("***************************************")
 	fmt.Println("****  _______   _______   _______  ****")
@@ -172,7 +174,7 @@ func PrintIco() {
 	fmt.Println("***************************************")
 }
 
-/*
+
 func generate() {
 	fmt.Println("selected 1")
 	type ColorGroup struct {

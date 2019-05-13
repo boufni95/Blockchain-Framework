@@ -11,6 +11,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
+//Starterb : start a blockchian node
 func Starterb(pathConfig string) error {
 	var sc conf.BChainConfig
 	h, err := conf.ExtractBChainConfig(&sc, pathConfig, false)
