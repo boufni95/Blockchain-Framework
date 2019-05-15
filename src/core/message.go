@@ -246,16 +246,17 @@ func (m *message) Send(s Server, conn net.Conn) error {
 	case NewConnection:
 		{
 			s := m.mContent.(struct {
-				code []byte
-				name []byte
+				Code []byte
+				Name []byte
 			})
+
 			toSend := make([]byte, 1)
 			toSend[0] = (byte)(m.mType)
-			Bytes := s.code
+			Bytes := s.Code
 			//intTo4Byte(&Bytes, s.code, true)
 			toSend = append(toSend, Bytes...)
-			toSend = append(toSend, (byte)(len(s.name)))
-			toSend = append(toSend, s.name...)
+			toSend = append(toSend, (byte)(len(s.Name)))
+			toSend = append(toSend, s.Name...)
 			//spew.Dump(toSend)
 			conn.Write(toSend)
 
@@ -267,18 +268,18 @@ func (m *message) Send(s Server, conn net.Conn) error {
 	case NewInRoom:
 		{
 			c := m.mContent.(struct {
-				owner []byte
-				pType byte
-				nLen  []byte
-				name  []byte
+				Owner []byte
+				PType byte
+				NLen  []byte
+				Name  []byte
 			})
 			//TODO : add player type!!
 			toSend := make([]byte, 1)
 			toSend[0] = (byte)(m.mType)
-			toSend = append(toSend, c.owner...)
-			toSend = append(toSend, c.pType)
-			toSend = append(toSend, c.nLen...)
-			toSend = append(toSend, c.name...)
+			toSend = append(toSend, c.Owner...)
+			toSend = append(toSend, c.PType)
+			toSend = append(toSend, c.NLen...)
+			toSend = append(toSend, c.Name...)
 			conn.Write(toSend)
 		}
 	case NewOutRoom:
@@ -292,17 +293,17 @@ func (m *message) Send(s Server, conn net.Conn) error {
 	case ChatAll:
 		{
 			c := m.mContent.(struct {
-				nLen []byte
-				name []byte
-				mLen []byte
-				mess []byte
+				NLen []byte
+				Name []byte
+				MLen []byte
+				Mess []byte
 			})
 			toSend := make([]byte, 1)
 			toSend[0] = (byte)(m.mType)
-			toSend = append(toSend, c.nLen...)
-			toSend = append(toSend, c.name...)
-			toSend = append(toSend, c.mLen...)
-			toSend = append(toSend, c.mess...)
+			toSend = append(toSend, c.NLen...)
+			toSend = append(toSend, c.Name...)
+			toSend = append(toSend, c.MLen...)
+			toSend = append(toSend, c.Mess...)
 			conn.Write(toSend)
 		}
 	case ChatRoom:
@@ -333,15 +334,15 @@ func (m *message) GenerateGameMessage() []byte {
 	case SimpleTransform:
 		{
 			c := m.mContent.(struct {
-				code  []byte
-				pType byte
-				pos   []byte
+				Code  []byte
+				PType byte
+				Pos   []byte
 			})
 			b := make([]byte, 1)
 			b[0] = (byte)(m.mType)
-			b = append(b, c.code...)
-			b = append(b, c.pType)
-			b = append(b, c.pos...)
+			b = append(b, c.Code...)
+			b = append(b, c.PType)
+			b = append(b, c.Pos...)
 			return b
 		}
 	case CompleteTransform:

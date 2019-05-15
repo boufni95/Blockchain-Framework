@@ -169,9 +169,9 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 						return err1
 					}
 					c := struct {
-						code  []byte
-						pType byte
-						pos   []byte
+						Code  []byte
+						PType byte
+						Pos   []byte
 					}{code, pType[0], pos}
 					mc := core.NewMessage(core.SimpleTransform, c)
 					m := core.NewMessage(core.InGameMessage, mc)
@@ -258,8 +258,8 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 			wmess := core.NewMessage(core.WelcomeMessage, b)
 			wmess.Send(s, conn)
 			c := struct {
-				code []byte
-				name []byte
+				Code []byte
+				Name []byte
 			}{b, name}
 			wmess.Mutate(core.NewConnection, c)
 			s.BroadcastMessage(wmess)
@@ -289,10 +289,10 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 			}
 			s.AssignRoom("", conn.RemoteAddr().String())
 			c := struct {
-				owner []byte
-				pType byte
-				nLen  []byte
-				name  []byte
+				Owner []byte
+				PType byte
+				NLen  []byte
+				Name  []byte
 			}{owner, pType[0], nLen, name}
 			mess := core.NewMessage(core.NewInRoom, c)
 			s.BroadcastMessageRoom(mess, conn.RemoteAddr().String())
@@ -322,10 +322,10 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 			spew.Dump(name)
 			spew.Dump(mess)
 			c := struct {
-				nLen []byte
-				name []byte
-				mLen []byte
-				mess []byte
+				NLen []byte
+				Name []byte
+				MLen []byte
+				Mess []byte
 			}{num, name, n, mess}
 			cmess := core.NewMessage(core.ChatAll, c)
 			s.BroadcastMessage(cmess)

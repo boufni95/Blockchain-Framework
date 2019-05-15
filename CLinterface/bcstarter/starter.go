@@ -5,11 +5,11 @@ import (
 	bchain "GGS/src/blockchain"
 	"GGS/src/core"
 	"fmt"
+	"io/ioutil"
 	"net"
-	"time"
-
-	"github.com/davecgh/go-spew/spew"
 )
+
+var blockchain []bchain.Block
 
 //Starterb : start a blockchian node
 func Starterb(pathConfig string) error {
@@ -19,14 +19,16 @@ func Starterb(pathConfig string) error {
 		return err
 	}
 	fmt.Println("hash", h)
+	//------------------------------------------------
+	blockchain, err = retriveChain()
+	if err != nil {
+		return err
+	}
 	s := bchain.StdBCServer(sc)
 	if err := s.SetVar("ConfigHash", h); err != nil {
 		return err
 	}
-	t := time.Now()
-	txs := make([]bchain.Transaction, 0)
-	genesis := bchain.Block{0, t.String(), txs, "", ""}
-	spew.Dump(genesis)
+
 	for _, v := range sc.SOURCEIPS {
 		conn, err := net.Dial("tcp", v)
 		if err != nil {
@@ -41,4 +43,24 @@ func Starterb(pathConfig string) error {
 	}
 	s.Start()
 	return nil
+}
+func retriveChain() ([]bchain.Block, error) {
+	var chain []bchain.Block
+	_, err := ioutil.ReadFile("blockchain.ggs")
+	if err != nil {
+		chain = make([]bchain.Block, 1)
+		genesis, err := bchain.GenerateGenesisBlock()
+		if err != nil {
+			return chain, err
+		}
+
+		chain[0] = genesis
+	}
+	return chain, nil
+
+}
+func replaceChain(newBlocks []bchain.Block) {
+	if len(newBlocks) > len(blockchain) {
+		blockchain = newBlocks
+	}
 }

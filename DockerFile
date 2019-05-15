@@ -3,4 +3,5 @@ WORKDIR src/GGS
 COPY . .
 RUN go build main.go
 EXPOSE 8080
-ENTRYPOINT [ "./main" , "-sb", "bconfig.ggs"]
+# ENTRYPOINT [ "./main" , "-sb", "bconfig.ggs"]
+ENTRYPOINT [ "./main" , "-sg"]

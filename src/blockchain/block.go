@@ -70,3 +70,42 @@ func GenerateBlock(oldBlock Block, txs []Transaction) (Block, error) {
 
 	return newBlock, nil
 }
+
+//GenerateGenesisBlock : generate a genesis block
+func GenerateGenesisBlock() (Block, error) {
+
+	var newBlock Block
+
+	t := time.Now()
+	txs := make([]Transaction, 0)
+	newBlock.Index = 0
+	newBlock.Timestamp = t.String()
+	newBlock.Transactions = txs
+	newBlock.PrevHash = ""
+	hash, err := newBlock.CalculateHash()
+	if err != nil {
+		return newBlock, err
+	}
+	newBlock.Hash = hash
+
+	return newBlock, nil
+}
+
+func isBlockValid(newBlock, oldBlock Block) bool {
+	if oldBlock.Index+1 != newBlock.Index {
+		return false
+	}
+
+	if oldBlock.Hash != newBlock.PrevHash {
+		return false
+	}
+	h, err := newBlock.CalculateHash()
+	if err != nil {
+		return false
+	}
+	if h != newBlock.Hash {
+		return false
+	}
+
+	return true
+}
