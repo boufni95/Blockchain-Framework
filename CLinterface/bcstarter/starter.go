@@ -4,9 +4,15 @@ import (
 	conf "GGS/CLinterface/configs"
 	bchain "GGS/src/blockchain"
 	"GGS/src/core"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net"
+	"net/http"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 var blockchain []bchain.Block
@@ -41,6 +47,7 @@ func Starterb(pathConfig string) error {
 		s.Emit("connected", conn)
 
 	}
+	go serve()
 	s.Start()
 	return nil
 }
@@ -63,4 +70,24 @@ func replaceChain(newBlocks []bchain.Block) {
 	if len(newBlocks) > len(blockchain) {
 		blockchain = newBlocks
 	}
+}
+func serve() {
+	myHandler := func(w http.ResponseWriter, req *http.Request) {
+		b := make([]byte, 1000)
+		n, err := req.Body.Read(b)
+		b = b[0:n]
+		if err != nil {
+			fmt.Println(err)
+
+		}
+		spew.Dump(b, n)
+		BJson, err := json.MarshalIndent(blockchain, "", "   ")
+		if err != nil {
+			return
+		}
+		io.WriteString(w, string(BJson))
+	}
+
+	http.HandleFunc("/set-tx", myHandler)
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
