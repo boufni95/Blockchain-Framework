@@ -73,12 +73,13 @@ func main() {
 	case "-sb":
 		{
 			fmt.Println("start blockchain node")
-			if len(args) < 3 {
+			if len(args) < 4 {
 				fmt.Println("missing arguments")
 				return
 			}
 			path := args[2]
-			err := bcstart.Starterb(path)
+			dir := args[3]
+			err := bcstart.Starterb(path, dir)
 			if err != nil {
 				fmt.Println(err)
 			}

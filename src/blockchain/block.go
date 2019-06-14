@@ -16,9 +16,10 @@ type Block struct {
 
 //Transaction : struct of a blockchain transaction
 type Transaction struct {
-	nTxsIn  int
+	Hash    string
+	NTxsIn  int
 	TxsIn   []TxIn
-	nTxsOut int
+	NTxsOut int
 	TxsOut  []TxOut
 }
 

@@ -1,8 +1,8 @@
-FROM golang:latest
+FROM gospew:latest
 WORKDIR src/GGS
 COPY . .
-RUN go get github.com/davecgh/go-spew/spew
+#RUN go get github.com/davecgh/go-spew/spew
 RUN go build main.go
 EXPOSE 8080
-#ENTRYPOINT [ "./main" , "-sb", "bconfig.ggs"]
-ENTRYPOINT [ "./main" , "-sg"]
+ENTRYPOINT [ "./main" , "-sb", "bconfig.ggs","chain"]
+#ENTRYPOINT [ "./main" , "-sg"]

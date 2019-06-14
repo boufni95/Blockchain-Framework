@@ -6,19 +6,16 @@ import (
 	"GGS/src/core"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
-var blockchain []bchain.Block
+var blockchainVar []bchain.Block
 
 //Starterb : start a blockchian node
-func Starterb(pathConfig string) error {
+func Starterb(pathConfig string, chainDir string) error {
 	var sc conf.BChainConfig
 	h, err := conf.ExtractBChainConfig(&sc, pathConfig, false)
 	if err != nil {
@@ -26,7 +23,7 @@ func Starterb(pathConfig string) error {
 	}
 	fmt.Println("hash", h)
 	//------------------------------------------------
-	blockchain, err = retriveChain()
+	blockchainVar, err = retriveChain(chainDir)
 	if err != nil {
 		return err
 	}
@@ -47,16 +44,19 @@ func Starterb(pathConfig string) error {
 		s.Emit("connected", conn)
 
 	}
-	go serve()
+	go serveHttp()
 	s.Start()
 	return nil
 }
-func retriveChain() ([]bchain.Block, error) {
+func retriveChain(dir string) ([]bchain.Block, error) {
+	CreateDirIfNotExist(dir)
 	var chain []bchain.Block
-	_, err := ioutil.ReadFile("blockchain.ggs")
+	_, err := ioutil.ReadFile(dir + "/blocks-0.ggs")
 	if err != nil {
 		chain = make([]bchain.Block, 1)
 		genesis, err := bchain.GenerateGenesisBlock()
+		b, err := json.MarshalIndent(genesis, " ", "    ")
+		SaveToFile(dir+"/blocks-0.ggs", b)
 		if err != nil {
 			return chain, err
 		}
@@ -67,27 +67,13 @@ func retriveChain() ([]bchain.Block, error) {
 
 }
 func replaceChain(newBlocks []bchain.Block) {
-	if len(newBlocks) > len(blockchain) {
-		blockchain = newBlocks
+	if len(newBlocks) > len(blockchainVar) {
+		blockchainVar = newBlocks
 	}
 }
-func serve() {
-	myHandler := func(w http.ResponseWriter, req *http.Request) {
-		b := make([]byte, 1000)
-		n, err := req.Body.Read(b)
-		b = b[0:n]
-		if err != nil {
-			fmt.Println(err)
+func serveHttp() {
 
-		}
-		spew.Dump(b, n)
-		BJson, err := json.MarshalIndent(blockchain, "", "   ")
-		if err != nil {
-			return
-		}
-		io.WriteString(w, string(BJson))
-	}
-
-	http.HandleFunc("/set-tx", myHandler)
+	http.HandleFunc("/set-tx", HttpPostTx)
+	http.HandleFunc("/", HttpGetChain)
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
