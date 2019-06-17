@@ -1,5 +1,7 @@
 package blockchain
 
+var txsToValidate []Transaction
+
 //IsBlockValid : chech if block is valid
 func IsBlockValid(newBlock, oldBlock Block) (bool, error) {
 	if oldBlock.Index+1 != newBlock.Index {

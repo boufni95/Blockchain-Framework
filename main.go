@@ -1,7 +1,7 @@
 package main
 
 import (
-	conf "Blockchain-Framework/CLinterface/configs"
+	conf "Blockchain-Framework/configs"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -11,8 +11,7 @@ import (
 	"log"
 	"os"
 
-
-	bcstart "Blockchain-Framework/CLinterface/bcstarter"
+	bcstart "Blockchain-Framework/bcstarter"
 
 	spew "github.com/davecgh/go-spew/spew"
 )
@@ -84,7 +83,6 @@ func main() {
 
 }
 
-
 func importerc() {
 	path := "../Templates/Examples/BChainConfig.Blockchain-Framework"
 	var config conf.BChainConfig
@@ -98,7 +96,6 @@ func importerw() {
 
 	fmt.Println("not implemented")
 }
-
 
 func starterw() {
 	fmt.Println("not implemented")

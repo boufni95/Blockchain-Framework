@@ -1,7 +1,7 @@
 package bcstarter
 
 import (
-	conf "Blockchain-Framework/CLinterface/configs"
+	conf "Blockchain-Framework/configs"
 	bchain "Blockchain-Framework/src/blockchain"
 	"Blockchain-Framework/src/core"
 	"encoding/json"
