@@ -1,8 +1,8 @@
 package bcstarter
 
 import (
-	bchain "Blockchain-Framework/src/blockchain"
-	conf "Blockchain-Framework/src/configs"
+	"Blockchain-Framework/src/blockchain"
+	"Blockchain-Framework/src/configs"
 	"Blockchain-Framework/src/core"
 	"encoding/json"
 	"fmt"
@@ -12,12 +12,12 @@ import (
 	"net/http"
 )
 
-var blockchainVar []bchain.Block
+var blockchainVar []blockchain.Block
 
 //Starterb : start a blockchian node
 func Starterb(pathConfig string, chainDir string) error {
-	var sc conf.BChainConfig
-	h, err := conf.ExtractBChainConfig(&sc, pathConfig, false)
+	var sc configs.BChainConfig
+	h, err := configs.ExtractBChainConfig(&sc, pathConfig, false)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func Starterb(pathConfig string, chainDir string) error {
 	if err != nil {
 		return err
 	}
-	s := bchain.StdBCServer(sc)
+	s := blockchain.StdBCServer(sc)
 	if err := s.SetVar("ConfigHash", h); err != nil {
 		return err
 	}
@@ -48,13 +48,13 @@ func Starterb(pathConfig string, chainDir string) error {
 	s.Start()
 	return nil
 }
-func retriveChain(dir string) ([]bchain.Block, error) {
+func retriveChain(dir string) ([]blockchain.Block, error) {
 	CreateDirIfNotExist(dir)
-	var chain []bchain.Block
+	var chain []blockchain.Block
 	_, err := ioutil.ReadFile(dir + "/blocks-0.ggs")
 	if err != nil {
-		chain = make([]bchain.Block, 1)
-		genesis, err := bchain.GenerateGenesisBlock()
+		chain = make([]blockchain.Block, 1)
+		genesis, err := blockchain.GenerateGenesisBlock()
 		b, err := json.MarshalIndent(genesis, " ", "    ")
 		SaveToFile(dir+"/blocks-0.ggs", b)
 		if err != nil {
@@ -66,7 +66,7 @@ func retriveChain(dir string) ([]bchain.Block, error) {
 	return chain, nil
 
 }
-func replaceChain(newBlocks []bchain.Block) {
+func replaceChain(newBlocks []blockchain.Block) {
 	if len(newBlocks) > len(blockchainVar) {
 		blockchainVar = newBlocks
 	}

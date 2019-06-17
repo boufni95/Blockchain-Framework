@@ -1,7 +1,7 @@
 package main
 
 import (
-	conf "Blockchain-Framework/src/configs"
+	"Blockchain-Framework/src/configs"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -47,8 +47,8 @@ func main() {
 				return
 			}
 			path := args[2]
-			var config conf.BChainConfig
-			_, err := conf.ExtractBChainConfig(&config, path, true)
+			var config configs.BChainConfig
+			_, err := configs.ExtractBChainConfig(&config, path, true)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -85,8 +85,8 @@ func main() {
 
 func importerc() {
 	path := "../Templates/Examples/BChainConfig.Blockchain-Framework"
-	var config conf.BChainConfig
-	_, err := conf.ExtractBChainConfig(&config, path, true)
+	var config configs.BChainConfig
+	_, err := configs.ExtractBChainConfig(&config, path, true)
 	if err != nil {
 		fmt.Println(err)
 	}
