@@ -1,7 +1,7 @@
 package main
 
 import (
-	conf "Blockchain-Framework/configs"
+	conf "Blockchain-Framework/src/configs"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -11,7 +11,7 @@ import (
 	"log"
 	"os"
 
-	bcstart "Blockchain-Framework/bcstarter"
+	bcstart "Blockchain-Framework/src/bcstarter"
 
 	spew "github.com/davecgh/go-spew/spew"
 )

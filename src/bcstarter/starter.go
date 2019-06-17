@@ -1,8 +1,8 @@
 package bcstarter
 
 import (
-	conf "Blockchain-Framework/configs"
 	bchain "Blockchain-Framework/src/blockchain"
+	conf "Blockchain-Framework/src/configs"
 	"Blockchain-Framework/src/core"
 	"encoding/json"
 	"fmt"
