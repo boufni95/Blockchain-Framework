@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	core "GGS/src/core"
+	core "Blockchain-Framework/src/core"
 )
 
 //StdBCServer : create a standard server

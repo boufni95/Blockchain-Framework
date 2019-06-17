@@ -1,7 +1,7 @@
 package main
 
 import (
-	conf "GGS/CLinterface/configs"
+	conf "Blockchain-Framework/CLinterface/configs"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -11,9 +11,8 @@ import (
 	"log"
 	"os"
 
-	game "GGS/src/game"
 
-	bcstart "GGS/CLinterface/bcstarter"
+	bcstart "Blockchain-Framework/CLinterface/bcstarter"
 
 	spew "github.com/davecgh/go-spew/spew"
 )
@@ -34,17 +33,13 @@ func main() {
 	fmt.Println("-sw - start blockchain wallet->create priv/pub key")
 	fmt.Print("-> ")*/
 	//text, _ := reader.ReadString('\n')
-	fmt.Println("welcome to ggs...")
+	fmt.Println("welcome to Blockchain-Framework...")
 	if len(args) < 2 {
 		fmt.Println("missing arguments")
 		return
 	}
 	switch args[1] {
-	case "-vcg":
-		{
-			fmt.Println("Verify config game")
-			importerg()
-		}
+
 	case "-vcb":
 		{
 			fmt.Println("Verify config bchain")
@@ -65,11 +60,7 @@ func main() {
 			fmt.Println("Verify config wallet")
 			importerw()
 		}
-	case "-sg":
-		{
-			fmt.Println("start game server")
-			starterg()
-		}
+
 	case "-sb":
 		{
 			fmt.Println("start blockchain node")
@@ -93,20 +84,9 @@ func main() {
 
 }
 
-func importerg() {
 
-	b, err := ioutil.ReadFile("config.ggs")
-	if err != nil {
-		fmt.Println("error :(")
-		return
-	}
-	_, err = conf.ExtractGameConfig(b)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
 func importerc() {
-	path := "../Templates/Examples/BChainConfig.ggs"
+	path := "../Templates/Examples/BChainConfig.Blockchain-Framework"
 	var config conf.BChainConfig
 	_, err := conf.ExtractBChainConfig(&config, path, true)
 	if err != nil {
@@ -118,10 +98,7 @@ func importerw() {
 
 	fmt.Println("not implemented")
 }
-func starterg() {
-	s := game.StdServer()
-	s.Start()
-}
+
 
 func starterw() {
 	fmt.Println("not implemented")
@@ -135,7 +112,7 @@ func starterw() {
 		fmt.Println("error:", err)
 	}
 	os.Stdout.Write(bPriv)
-	f1, err := os.OpenFile("privkey.ggs", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	f1, err := os.OpenFile("privkey.Blockchain-Framework", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,14 +120,14 @@ func starterw() {
 	if err := f1.Close(); err != nil {
 		log.Fatal(err)
 	}
-	ioutil.WriteFile("privkey.ggs", bPriv, 0644)
+	ioutil.WriteFile("privkey.Blockchain-Framework", bPriv, 0644)
 
 	bPub, err := json.MarshalIndent(privateKey.PublicKey, "", "    ")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 	os.Stdout.Write(bPub)
-	f2, err := os.OpenFile("pubkey.ggs", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	f2, err := os.OpenFile("pubkey.Blockchain-Framework", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -158,7 +135,7 @@ func starterw() {
 	if err := f2.Close(); err != nil {
 		log.Fatal(err)
 	}
-	ioutil.WriteFile("pubkey.ggs", bPub, 0644)
+	ioutil.WriteFile("pubkey.Blockchain-Framework", bPub, 0644)
 
 }
 
@@ -193,7 +170,7 @@ func generate() {
 		fmt.Println("error:", err)
 	}
 	os.Stdout.Write(b)
-	f, err := os.OpenFile("config.ggs", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	f, err := os.OpenFile("config.Blockchain-Framework", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -201,5 +178,5 @@ func generate() {
 	if err := f.Close(); err != nil {
 		log.Fatal(err)
 	}
-	ioutil.WriteFile("config.ggs", b, 0644)
+	ioutil.WriteFile("config.Blockchain-Framework", b, 0644)
 }*/

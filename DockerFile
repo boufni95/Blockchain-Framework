@@ -1,5 +1,5 @@
 FROM gospew:latest
-WORKDIR src/GGS
+WORKDIR src/Blockchain-Framework
 COPY . .
 #RUN go get github.com/davecgh/go-spew/spew
 RUN go build main.go

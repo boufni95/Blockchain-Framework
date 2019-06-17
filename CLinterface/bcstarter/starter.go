@@ -1,9 +1,9 @@
 package bcstarter
 
 import (
-	conf "GGS/CLinterface/configs"
-	bchain "GGS/src/blockchain"
-	"GGS/src/core"
+	conf "Blockchain-Framework/CLinterface/configs"
+	bchain "Blockchain-Framework/src/blockchain"
+	"Blockchain-Framework/src/core"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

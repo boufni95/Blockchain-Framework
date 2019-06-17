@@ -1,7 +1,7 @@
 package bcstarter
 
 import (
-	"GGS/src/blockchain"
+	"Blockchain-Framework/src/blockchain"
 	"encoding/json"
 	"errors"
 	"fmt"
