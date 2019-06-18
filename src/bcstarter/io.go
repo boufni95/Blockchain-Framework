@@ -38,7 +38,7 @@ func SaveToFile(fileName string, b []byte) {
 	ioutil.WriteFile(fileName, b, 0644)
 }
 func HttpGetChain(w http.ResponseWriter, req *http.Request) {
-	BJson, err := json.MarshalIndent(blockchainVar, "", "   ")
+	BJson, err := json.MarshalIndent(blockchainVar.Get(), "", "   ")
 	if err != nil {
 		return
 	}
@@ -76,12 +76,10 @@ func HttpPostTx(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	BJson, err := json.MarshalIndent(blockchainVar, "", "   ")
-	if err != nil {
-		return
-	}
-	io.WriteString(w, string(BJson))
+	io.WriteString(w, "Tx structure ok, will now check consistency")
+	blockchain.ProcessTx(Tx)
 }
+
 func checkTx(Tx blockchain.Transaction) error {
 	res := Tx.Hash != "" &&
 		Tx.NTxsIn > 0 &&

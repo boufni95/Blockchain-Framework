@@ -30,7 +30,7 @@ func StdAddListeners(s core.Server) {
 	defListen = make(map[string]chan net.Conn)
 	s.StatusIn("adding listener")
 	defListen["connected"] = s.AddListener("connected", stdOnConnected)
-	defListen["bcmex"] = s.AddListener("bcmex", HandleBCmessage)
+	//defListen["bcmex"] = s.AddListener("bcmex", HandleBCmessage)
 
 }
 func stdOnConnected(s core.Server, conn net.Conn) {
@@ -100,26 +100,54 @@ func StdReciveMessage(s core.Server, conn net.Conn) error {
 func HandleBCmessage(s core.Server, conn net.Conn) {
 	mType := make([]byte, 1)
 	_, err := conn.Read(mType)
+	fmt.Println("recived:", mType[0], core.FmtBcMex((core.MessageType)(mType[0])))
 	if err != nil {
 		fmt.Println(err)
 	}
 	switch (core.MessageType)(mType[0]) {
-	case core.IAmNode:
+	case core.Config:
 		{
-			fmt.Println("recived I am node")
-			hash, err := s.GetVar("ConfigHash")
+
+			lenb := make([]byte, 1)
+			_, err := conn.Read(lenb)
 			if err != nil {
 				fmt.Println(err)
-			} else {
-				hb := ([]byte)(hash.(string))
-				confMex := core.NewMessage(core.MyConfig, hb)
-				bcm := core.NewMessage(core.BChainMessage, confMex)
-				//spew.Dump(confMex)
-				bcm.Send(nil, conn)
 			}
+			hash := make([]byte, lenb[0])
+			_, err = conn.Read(hash)
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Println("recived hash:", string(hash))
+			myhash, err := s.GetVar("ConfigHash")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			verified := true
+			myh := ([]byte)(myhash.(string))
+			if len(myh) != len(hash) {
+				verified = false
+			} else {
+				for i, v := range hash {
+					if v != myh[i] {
+						verified = false
+					}
+				}
+			}
+			fmt.Println("hash verif:", verified)
+			fmt.Println("sending confirm config")
+			confMess := core.NewMessage(core.ConfirmConfig, myh)
+			bcm := core.NewMessage(core.BChainMessage, confMess)
+			bcm.Send(nil, conn)
+			s.AddConnection(conn.RemoteAddr().String(), conn)
+			err = s.AssignRoom("nodes", conn.RemoteAddr().String())
 
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
-	case core.MyConfig:
+	case core.ConfirmConfig:
 		{
 			lenb := make([]byte, 1)
 			_, err := conn.Read(lenb)
@@ -135,25 +163,25 @@ func HandleBCmessage(s core.Server, conn net.Conn) {
 			myhash, err := s.GetVar("ConfigHash")
 			if err != nil {
 				fmt.Println(err)
+				return
+			}
+			verified := true
+			myh := ([]byte)(myhash.(string))
+			if len(myh) != len(hash) {
+				verified = false
 			} else {
-				verified := true
-				myh := ([]byte)(myhash.(string))
-				if len(myh) != len(hash) {
-					verified = false
-				} else {
-					for i, v := range hash {
-						if v != myh[i] {
-							verified = false
-						}
+				for i, v := range hash {
+					if v != myh[i] {
+						verified = false
 					}
 				}
-				fmt.Println("hash verif:", verified)
-				s.AddConnection(conn.RemoteAddr().String(), conn)
-				err := s.AssignRoom("verified", conn.RemoteAddr().String())
+			}
+			fmt.Println("hash verif:", verified)
+			s.AddConnection(conn.RemoteAddr().String(), conn)
+			err = s.AssignRoom("nodes", conn.RemoteAddr().String())
 
-				if err != nil {
-					fmt.Println(err)
-				}
+			if err != nil {
+				fmt.Println(err)
 			}
 		}
 	}

@@ -17,5 +17,6 @@
 
     },
     "MAXUTXO":20,
-    "PROPOSEWINDOW":180
+    "PROPOSEWINDOW":180,
+    "VALIDATE":true
 }

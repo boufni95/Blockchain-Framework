@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-var blockchainVar []blockchain.Block
+var blockchainVar blockchain.Chain
 
 //Starterb : start a blockchian node
 func Starterb(pathConfig string, chainDir string) error {
@@ -38,39 +38,43 @@ func Starterb(pathConfig string, chainDir string) error {
 			fmt.Println(err)
 			continue
 		}
-		iam := core.NewMessage(core.IAmNode, nil)
+		/*iam := core.NewMessage(core.IAmNode, nil)
 		bcm := core.NewMessage(core.BChainMessage, iam)
+		bcm.Send(nil, conn)*/
+		confMex := core.NewMessage(core.Config, ([]byte)(h))
+		bcm := core.NewMessage(core.BChainMessage, confMex)
+		//spew.Dump(confMex)
 		bcm.Send(nil, conn)
 		s.Emit("connected", conn)
 
 	}
 	go serveHttp()
+	if sc.VALIDATE {
+		go blockchain.Validate()
+	}
 	s.Start()
 	return nil
 }
-func retriveChain(dir string) ([]blockchain.Block, error) {
+func retriveChain(dir string) (blockchain.Chain, error) {
 	CreateDirIfNotExist(dir)
-	var chain []blockchain.Block
+	var bChain []blockchain.Block
 	_, err := ioutil.ReadFile(dir + "/blocks-0.ggs")
 	if err != nil {
-		chain = make([]blockchain.Block, 1)
+		bChain = make([]blockchain.Block, 1)
 		genesis, err := blockchain.GenerateGenesisBlock()
 		b, err := json.MarshalIndent(genesis, " ", "    ")
 		SaveToFile(dir+"/blocks-0.ggs", b)
 		if err != nil {
-			return chain, err
+			return nil, err
 		}
 
-		chain[0] = genesis
+		bChain[0] = genesis
 	}
+	chain := blockchain.NewChain(bChain, dir)
 	return chain, nil
 
 }
-func replaceChain(newBlocks []blockchain.Block) {
-	if len(newBlocks) > len(blockchainVar) {
-		blockchainVar = newBlocks
-	}
-}
+
 func serveHttp() {
 
 	http.HandleFunc("/set-tx", HttpPostTx)

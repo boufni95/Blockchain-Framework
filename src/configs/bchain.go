@@ -43,6 +43,7 @@ type BChainConfig struct {
 	BLOCK         BlockConfig
 	MAXUTXO       int
 	PROPOSEWINDOW int
+	VALIDATE      bool
 }
 
 //Port : return the port from the configuration
@@ -161,6 +162,11 @@ func bchainCheckUnmarshalMap(m map[string]interface{}) error {
 		fmt.Println("propose window", m["PROPOSEWINDOW"])
 	} else {
 		return errors.New("propose window not found")
+	}
+	if m["VALIDATE"] != nil {
+		fmt.Println("validate", m["PROPOSEWINDOW"])
+	} else {
+		return errors.New("validate not found")
 	}
 
 	return nil

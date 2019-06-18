@@ -32,7 +32,7 @@ type TxIn struct {
 
 //TxOut : struct for bc transaction output
 type TxOut struct {
-	Value        int
+	Value        int64
 	ScriptPubKey string
 }
 
@@ -92,21 +92,23 @@ func GenerateGenesisBlock() (Block, error) {
 	return newBlock, nil
 }
 
-func isBlockValid(newBlock, oldBlock Block) bool {
+//IsBlockValid : check if block is valid
+func IsBlockValid(newBlock, oldBlock Block) (bool, error) {
 	if oldBlock.Index+1 != newBlock.Index {
-		return false
+		return false, nil
 	}
 
 	if oldBlock.Hash != newBlock.PrevHash {
-		return false
+		return false, nil
 	}
-	h, err := newBlock.CalculateHash()
+	cHash, err := newBlock.CalculateHash()
 	if err != nil {
-		return false
-	}
-	if h != newBlock.Hash {
-		return false
+		return false, err
 	}
 
-	return true
+	if cHash != newBlock.Hash {
+		return false, nil
+	}
+
+	return true, nil
 }

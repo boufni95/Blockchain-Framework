@@ -235,7 +235,7 @@ func (m *message) Send(s Server, conn net.Conn) error {
 			b := c.GenerateBCMessage() //gnerate messag
 
 			Bytes = append(Bytes, b...) //append and send
-			fmt.Println("sending...")
+			fmt.Println("sending...", c.GetType(), FmtBcMex(c.GetType()))
 			spew.Dump(Bytes)
 			conn.Write(Bytes)
 		}

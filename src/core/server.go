@@ -215,6 +215,7 @@ func (s *server) SendMessageToAddr(m Message, ip string) error {
 	return nil
 }
 func (s *server) AssignRoom(keyR string, keyP string) error {
+	fmt.Println("assigning room_", keyR, "_to", keyP)
 	if keyR == "" {
 		//spew.Dump(s.rooms)
 		for i := range s.rooms {

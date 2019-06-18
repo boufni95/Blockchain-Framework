@@ -7,20 +7,23 @@ const (
 	//IAmNode say that you are a node
 	//Structure
 	//1byte -> message type
-	IAmNode MessageType = 3
+	IAmNode MessageType = 3 //DELETE
 
 	//IAmReady say you are ready
 	IAmReady MessageType = 5
 
-	//MyConfig send my config for check
+	//Config send my config for check
 	//Structure
 	//1byte -> message type
 	//1byte -> hash len
 	//Nbytes-> hash
-	MyConfig MessageType = 7
+	Config MessageType = 7
+
+	//ConfirmConfig send the config after receiving a corrent config
+	ConfirmConfig MessageType = 9
 
 	//GiveMeNodes ask for other connected nodes
-	GiveMeNodes MessageType = 9
+	//GiveMeNodes MessageType = 9
 
 	//GiveYouNodes give other connected nodes
 	GiveYouNodes MessageType = 11
@@ -69,7 +72,17 @@ func (m *message) GenerateBCMessage() []byte {
 			b[0] = (byte)(m.mType)
 			return b
 		}
-	case MyConfig:
+	case Config:
+		{
+			b = make([]byte, 1)
+			b[0] = (byte)(m.mType)
+			conf := m.mContent.([]byte)
+			b = append(b, (byte)(len(conf)))
+			b = append(b, conf...)
+			return b
+
+		}
+	case ConfirmConfig:
 		{
 			b = make([]byte, 1)
 			b[0] = (byte)(m.mType)
@@ -81,4 +94,19 @@ func (m *message) GenerateBCMessage() []byte {
 		}
 	}
 	return b
+}
+
+//FmtBcMex : blockchain message as formatted string
+func FmtBcMex(mt MessageType) string {
+	switch mt {
+	case Config:
+		{
+			return "config"
+		}
+	case ConfirmConfig:
+		{
+			return "confirm config"
+		}
+	}
+	return "Unknown BC message"
 }
