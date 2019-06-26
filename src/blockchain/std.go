@@ -105,6 +105,11 @@ func HandleBCmessage(s core.Server, conn net.Conn) {
 		fmt.Println(err)
 	}
 	switch (core.MessageType)(mType[0]) {
+	case core.AmReady:
+		{
+			fmt.Println(conn.RemoteAddr().String(), "is ready")
+			s.AssignRoom("ready", conn.RemoteAddr().String())
+		}
 	case core.Config:
 		{
 

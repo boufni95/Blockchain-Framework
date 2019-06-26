@@ -9,8 +9,8 @@ const (
 	//1byte -> message type
 	IAmNode MessageType = 3 //DELETE
 
-	//IAmReady say you are ready
-	IAmReady MessageType = 5
+	//AmReady say you are ready
+	AmReady MessageType = 5
 
 	//Config send my config for check
 	//Structure
@@ -65,9 +65,8 @@ type BCMessage interface {
 func (m *message) GenerateBCMessage() []byte {
 	var b []byte
 	switch m.mType {
-	case IAmNode:
+	case AmReady:
 		{
-			//TODO: write send to write generate
 			b = make([]byte, 1)
 			b[0] = (byte)(m.mType)
 			return b
@@ -99,6 +98,10 @@ func (m *message) GenerateBCMessage() []byte {
 //FmtBcMex : blockchain message as formatted string
 func FmtBcMex(mt MessageType) string {
 	switch mt {
+	case AmReady:
+		{
+			return "Am ready"
+		}
 	case Config:
 		{
 			return "config"

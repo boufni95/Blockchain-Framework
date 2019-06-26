@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"sync"
 )
 
 //------------------------------------------------------------------
@@ -41,6 +42,11 @@ type Room interface {
 	GetKey() string
 	BroadcastMessage(Message) error
 	AddConnection(string) error
+	IsIn(string) bool
+	Lock()
+	RLock()
+	Unlock()
+	RUnlock()
 	//TODO : RemoveConnection
 }
 
@@ -64,6 +70,7 @@ func NewRoom(s Server, key string, maxP int) Room {
 //-------------------STRUCTS----------------------------------------
 //------------------------------------------------------------------
 type room struct {
+	sync.RWMutex
 	key          string
 	maxPlayers   int
 	numConnected int
@@ -99,6 +106,19 @@ func (r *room) AddConnection(key string) error {
 	if ok == true && is == true {
 		return errors.New("player already in the room")
 	}
+	//SAFE
+	r.Lock()
 	r.players[key] = true
+	r.Unlock()
 	return nil
+}
+func (r *room) IsIn(key string) bool {
+	//SAFE
+	r.RLock()
+	val, ok := r.players[key]
+	r.RUnlock()
+	if !ok {
+		return false
+	}
+	return val
 }

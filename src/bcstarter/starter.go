@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 )
 
 var blockchainVar blockchain.Chain
@@ -50,8 +51,18 @@ func Starterb(pathConfig string, chainDir string) error {
 	}
 	go serveHttp()
 	if sc.VALIDATE {
-		go blockchain.Validate()
+		go blockchain.Validate(s)
 	}
+	time.AfterFunc(time.Second*20, func() {
+		s.Emit("ready", nil)
+		r, err := s.GetRoom("nodes")
+		if err != nil {
+			return
+		}
+		rmex := core.NewMessage(core.AmReady, nil)
+		bcmex := core.NewMessage(core.BChainMessage, rmex)
+		r.BroadcastMessage(bcmex)
+	})
 	s.Start()
 	return nil
 }

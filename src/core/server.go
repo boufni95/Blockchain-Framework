@@ -27,6 +27,7 @@ type Server interface {
 	Status() string
 	StatusIn(string)
 	AddRoom(string, int) error
+	GetRoom(string) (Room, error)
 	RemoveRoom(string)
 	AddConnection(string, net.Conn) int
 	RemoveConnection(string)
@@ -240,6 +241,13 @@ func (s *server) AssignRoom(keyR string, keyP string) error {
 		}
 	}
 	return nil
+}
+func (s *server) GetRoom(key string) (Room, error) {
+	v, ok := s.rooms[key]
+	if !ok {
+		return nil, errors.New("cant find room")
+	}
+	return v, nil
 }
 func (s *server) SetVar(name string, value interface{}) error {
 	if _, ok := s.vars[name]; ok == true {
